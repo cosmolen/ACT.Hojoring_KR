@@ -75,6 +75,7 @@
   </UserControl.Resources>
 
   <StackPanel>
+    <!-- for KR region; unusable feature -->
     <StackPanel Margin="0 15 0 0" HorizontalAlignment="Left" Visibility="Collapsed">
       <Label Margin="0 0 0 8" Content="{DynamicResource Options_PCNameDisplayStyle}" />
       <RadioButton Margin="5 0 0 0" Content="Naoki Yoshida" VerticalContentAlignment="Center" Tag="0" x:Name="NameStyle1RadioButton" />
