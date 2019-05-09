@@ -13,6 +13,7 @@ using ACT.SpecialSpellTimer.Sound;
 using ACT.SpecialSpellTimer.Utility;
 using Advanced_Combat_Tracker;
 using FFXIV.Framework.Common;
+using FFXIV.Framework.Extensions;   // for KR region
 using FFXIV.Framework.FFXIVHelper;
 using Prism.Mvvm;
 using Sharlayan.Core.Enums;
@@ -44,6 +45,17 @@ namespace ACT.SpecialSpellTimer.Models
 
         public void Begin()
         {
+            // for KR region
+            var actTimelineEnabled = ActGlobals.oFormActMain?.ActPlugins?
+                    .FirstOrDefault(
+                        x => x.pluginFile.Name.ContainsIgnoreCase("BindingCoil.ACTTimeline.dll"))?
+                    .cbEnabled.Enabled;
+            // wait for act timeline plugin to avoid conflict
+            if (actTimelineEnabled != null && actTimelineEnabled == true)
+            {
+                Thread.Sleep(500);
+            }
+
             this.CompileSpells();
             this.CompileTickers();
 

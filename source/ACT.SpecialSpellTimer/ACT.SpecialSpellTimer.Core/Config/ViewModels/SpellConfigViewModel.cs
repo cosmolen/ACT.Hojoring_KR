@@ -317,6 +317,7 @@ namespace ACT.SpecialSpellTimer.Config.ViewModels
 
         public PartyComposiotionSelector[] PartyCompositionSelectors { get; } = new[]
         {
+            // for KR region
             new PartyComposiotionSelector(PartyCompositions.LightParty, "소규모 파티"),
             new PartyComposiotionSelector(PartyCompositions.FullPartyT1, "대규모 파티 (T1)"),
             new PartyComposiotionSelector(PartyCompositions.FullPartyT2, "대규모 파티 (T2)"),
