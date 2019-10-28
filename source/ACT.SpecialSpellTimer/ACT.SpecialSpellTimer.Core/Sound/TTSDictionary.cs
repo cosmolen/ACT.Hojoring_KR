@@ -218,7 +218,7 @@ namespace ACT.SpecialSpellTimer.Sound
         public class PCPhonetic :
             BindableBase
         {
-            private int id;
+            private uint id;
             private string name;
             private string nameFI;
             private string nameIF;
@@ -226,7 +226,7 @@ namespace ACT.SpecialSpellTimer.Sound
             private string phonetic;
             private JobIDs jobID;
 
-            public int ID
+            public uint ID
             {
                 get => this.id;
                 set => this.SetProperty(ref this.id, value);

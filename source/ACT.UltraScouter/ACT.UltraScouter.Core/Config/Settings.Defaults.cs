@@ -210,6 +210,7 @@ namespace ACT.UltraScouter.Config
                 IsSelfDisplayYou = true,
                 IsDenomi = false,
                 IsVisibleIcon = true,
+                IsVisibleName = true,
                 IconScale = 1.0d,
                 ScaningRate = 250d,
                 MaxCountOfDisplay = 8,
@@ -606,6 +607,20 @@ namespace ACT.UltraScouter.Config
                 }
             }},
 
+            { nameof(Settings.MyMarker), new MyMarker()
+            {
+                Visible = false,
+                Location = new Location() { X = 0, Y = 0 },
+                Scale = 1.0d,
+                DisplayText = new DisplayText()
+                {
+                    Font = DefaultFont,
+                    Color = Colors.White,
+                    OutlineColor = Colors.Gold
+                },
+                MarkerType = MyMarkerTypes.ArrowUp,
+            }},
+
             #endregion Me
 
             #region MobList
@@ -664,6 +679,25 @@ namespace ACT.UltraScouter.Config
             } },
 
             #endregion MobList
+
+            #region TacticalRadar
+
+            { nameof(Settings.TacticalRadar), new TacticalRadar()
+            {
+                Visible = false,
+                Scale = 1.0d,
+                Location = new Location() { X = 100, Y = 200 },
+                DirectionOrigin = DirectionOrigin.Camera,
+
+                DisplayText = new DisplayText()
+                {
+                    Font = DefaultFont,
+                    Color = Colors.White,
+                    OutlineColor = Colors.Navy
+                },
+            } },
+
+            #endregion TacticalRadar
         };
 
         private static ObservableCollection<JobAvailablity> DefaultMPTickerTargetJobs

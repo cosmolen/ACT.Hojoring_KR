@@ -14,7 +14,7 @@
   <system:String x:Key="GeneralConfig_LogPollingPriority">메모리 스캔 우선순위</system:String>
   <system:String x:Key="GeneralConfig_OverlayRefreshPriority">오버레이 새로고침 우선순위</system:String>
   <system:String x:Key="GeneralConfig_RestartThreads">스레드 재시작</system:String>
-  <system:String x:Key="GeneralConfig_AnimationMaxFPS">애니메이션 최대 FPS</system:String>
+  <system:String x:Key="GeneralConfig_AnimationMaxFPS">애니메이션 최대 FPS (0일 경우 자동 조정)</system:String>
   <system:String x:Key="GeneralConfig_TextStrokeThickenessGain">글자 윤곽선 두께 비율</system:String>
   <system:String x:Key="GeneralConfig_TextBlurGain">글자 흐림 효과 비율</system:String>
   <system:String x:Key="GeneralConfig_Sound">사운드</system:String>
@@ -24,7 +24,9 @@
 
   <system:String x:Key="Common_Visible">표시</system:String>
   <system:String x:Key="Common_Location">위치</system:String>
+  <system:String x:Key="Common_Alignment">정렬</system:String>
   <system:String x:Key="Common_BarWidth">바의 폭</system:String>
+  <system:String x:Key="Common_BarSize">바 크기</system:String>
   <system:String x:Key="Common_Scale">스케일</system:String>
   <system:String x:Key="Common_Background">배경</system:String>
   <system:String x:Key="Common_Font">폰트</system:String>
@@ -107,15 +109,24 @@
   <system:String x:Key="Enmity_DisplayPCasYou">내 캐릭터를 YOU로 표기</system:String>
   <system:String x:Key="Enmity_IsDenomi">1,000미만인 값 잘라내기</system:String>
   <system:String x:Key="Enmity_IsVisibleJobIcon">잡 아이콘 표시</system:String>
+  <system:String x:Key="Enmity_IsIconRight">잡 아이콘을 오른쪽에 표시</system:String>
+  <system:String x:Key="Enmity_IsVisibleName">캐릭터 이름 표시</system:String>
+  <system:String x:Key="Enmity_IsDifferenceMode">GUILTEX 스타일 (상대값으로 표시)</system:String>
   <system:String x:Key="Enmity_JobIconScale">잡 아이콘 크기</system:String>
   <system:String x:Key="Enmity_MaxCountOfDisplay">목록 최대 표시 수</system:String>
   <system:String x:Key="Enmity_ScaningRate">적개심 스캔 간격 (msec)</system:String>
+  <system:String x:Key="Enmity_AlterTextMeValue">내 적개심 수치를 대체할 텍스트</system:String>
+  <system:String x:Key="Enmity_IsNearIndicator">바를 적개심 근접 알림으로 사용</system:String>
+  <system:String x:Key="Enmity_NearIndicatorColor">적개심 근접 경고색</system:String>
+  <system:String x:Key="Enmity_NearThresholdRate">적개심 근접 임계치 배율</system:String>
+  <system:String x:Key="Enmity_IsVisibleNearThreshold">적개심 근접 임계치 표시</system:String>
+  <system:String x:Key="Enmity_LogDirectory">로그 폴더</system:String>
 
   <system:String x:Key="FFLogs_VisibleHistogram">히스토그램 표시</system:String>
   <system:String x:Key="FFLogs_HideInCombat">전투 시 자동 숨김</system:String>
   <system:String x:Key="FFLogs_HideInCombatDescription" xml:space="preserve">파티원의 HP, TP, MP 중 하나라도 최대치가 아닐 경우 전투 중이라고 판단합니다.</system:String>
 
-  <system:String x:Key="TacticalRadar_HorizontalLayout">수평 레이아웃</system:String>
+  <system:String x:Key="TacticalRadar_HorizontalLayout">가로 레이아웃</system:String>
   <system:String x:Key="TacticalRadar_Target">전술 타겟</system:String>
   <system:String x:Key="TacticalRadar_TargetName">타겟 이름</system:String>
   <system:String x:Key="TacticalRadar_DetectRange">감지 거리</system:String>

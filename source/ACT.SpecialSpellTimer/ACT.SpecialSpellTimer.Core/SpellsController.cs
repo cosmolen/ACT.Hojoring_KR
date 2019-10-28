@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows;
 using ACT.SpecialSpellTimer.Config;
 using ACT.SpecialSpellTimer.Models;
 using ACT.SpecialSpellTimer.Utility;
@@ -267,11 +268,11 @@ namespace ACT.SpecialSpellTimer
             // 延長をマッチングする
             if (spell.MatchDateTime > DateTime.MinValue)
             {
-                var keywords = new string[] { spell.KeywordForExtendReplaced1, spell.KeywordForExtendReplaced2 };
-                var regexes = new Regex[] { spell.RegexForExtend1, spell.RegexForExtend2 };
-                var timeToExtends = new double[] { spell.RecastTimeExtending1, spell.RecastTimeExtending2 };
+                var keywords = new string[] { spell.KeywordForExtendReplaced1, spell.KeywordForExtendReplaced2, spell.KeywordForExtendReplaced3 };
+                var regexes = new Regex[] { spell.RegexForExtend1, spell.RegexForExtend2, spell.RegexForExtend3 };
+                var timeToExtends = new double[] { spell.RecastTimeExtending1, spell.RecastTimeExtending2, spell.RecastTimeExtending3 };
 
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < keywords.Length; i++)
                 {
                     var keywordToExtend = keywords[i];
                     var regexToExtend = regexes[i];
@@ -477,6 +478,7 @@ namespace ACT.SpecialSpellTimer
                     }
 
                     panelWindow.ToWindow().Show();
+                    panelWindow.ToWindow().Topmost = false;
                 }
 
                 // クリックスルーを反映する
@@ -507,6 +509,7 @@ namespace ACT.SpecialSpellTimer
                 foreach (var window in toHide)
                 {
                     window.HideOverlay();
+                    (window as Window).Topmost = false;
                 }
             }
 
@@ -628,7 +631,17 @@ namespace ACT.SpecialSpellTimer
             {
                 foreach (var panel in SpellPanelTable.Instance.Table)
                 {
-                    panel.PanelWindow?.HideOverlay();
+                    if (panel.PanelWindow != null &&
+                        panel.PanelWindow is Window window)
+                    {
+                        window.Topmost = false;
+                    }
+
+                    if (panel.PanelWindow != null)
+                    {
+                        panel.PanelWindow.HideOverlay();
+                        (panel.PanelWindow as Window).Topmost = false;
+                    }
                 }
             }
         }

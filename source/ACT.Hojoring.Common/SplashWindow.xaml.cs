@@ -16,7 +16,7 @@ namespace ACT.Hojoring.Common
     public partial class SplashWindow : Window
     {
         // for KR region
-        public string FFXIVVersion => "for patch 4.4x (KR)";
+        public string FFXIVVersion => "for patch 4.5x (KR)";
 
         public static Version HojoringVersion => Assembly.GetExecutingAssembly()?.GetName()?.Version;
 

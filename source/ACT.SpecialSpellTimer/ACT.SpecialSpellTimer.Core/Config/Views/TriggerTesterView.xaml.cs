@@ -612,7 +612,7 @@ namespace ACT.SpecialSpellTimer.Config.Views
                     }
                     else
                     {
-                        combatant.ID = 8 - TableCompiler.Instance.SimulationParty.Count();
+                        combatant.ID = (uint)(8 - TableCompiler.Instance.SimulationParty.Count());
                     }
 
                     TableCompiler.Instance.SimulationParty.Add(combatant);

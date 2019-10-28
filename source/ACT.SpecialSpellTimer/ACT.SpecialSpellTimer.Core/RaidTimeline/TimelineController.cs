@@ -17,6 +17,7 @@ using FFXIV.Framework.Common;
 using FFXIV.Framework.Extensions;
 using FFXIV.Framework.FFXIVHelper;
 using Prism.Mvvm;
+using Sharlayan.Core.Enums;
 
 namespace ACT.SpecialSpellTimer.RaidTimeline
 {
@@ -202,7 +203,6 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                     return false;
                 }
 
-                // zone id
                 if (string.Equals(
                         FFXIVPlugin.Instance?.GetCurrentZoneID().ToString().Trim(),
                         this.Model.Zone.Trim()))
@@ -227,7 +227,6 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                         ActGlobals.oFormActMain.CurrentZone.Trim(),
                         x.Trim(),
                         StringComparison.OrdinalIgnoreCase) ||
-                    // zone id
                     string.Equals(
                         FFXIVPlugin.Instance?.GetCurrentZoneID().ToString().Trim(),
                         x.Trim()));
@@ -323,6 +322,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
 
                 TimelineOverlay.CloseTimeline();
                 TimelineNoticeOverlay.CloseNotice();
+                TimelineImageNoticeModel.Collect();
 
                 this.CurrentTime = TimeSpan.Zero;
                 this.ClearActivity();
@@ -1308,6 +1308,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                 }
 
                 NotifyQueue.Enqueue(toNotice);
+                tri.Execute();
             }
 
             WPFHelper.BeginInvoke(() =>
@@ -1347,6 +1348,9 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
         /// </summary>
         private void DetectPSyncTriggers()
         {
+            // starts using 時のポジションをダンプする
+            this.DumpStartsUsingPosition();
+
             var localDetectTime = DateTime.Now;
             var psyncs = default(TimelineTriggerModel[]);
 
@@ -1505,6 +1509,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                 }
 
                 NotifyQueue.Enqueue(toNotice);
+                tri.Execute();
 
                 WPFHelper.BeginInvoke(() =>
                 {
@@ -1534,6 +1539,33 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                         RaiseLog(tri);
                     }
                 });
+            }
+        }
+
+        private static readonly object DumpStartsUsingLock = new object();
+        private IEnumerable<uint> previouseCastingCombatantIDs;
+
+        private void DumpStartsUsingPosition()
+        {
+            lock (DumpStartsUsingLock)
+            {
+                var castingCombatants = FFXIVPlugin.Instance.GetCombatantList()
+                    .Where(x =>
+                        x.ObjectType == Actor.Type.Monster &&
+                        x.IsCasting)
+                    .ToArray();
+
+                foreach (var combatant in castingCombatants)
+                {
+                    if (this.previouseCastingCombatantIDs == null ||
+                        !this.previouseCastingCombatantIDs.Contains(combatant.ID))
+                    {
+                        TimelineController.RaiseLog(
+                            $"{TLSymbol} {combatant.Name} starts using {combatant.CastSkillName}. X={combatant.PosXMap:N2} Y={combatant.PosYMap:N2} Z={combatant.PosZMap:N2}. ID={combatant.CastBuffID:X4} duration={combatant.CastDurationMax:N1}");
+                    }
+                }
+
+                this.previouseCastingCombatantIDs = castingCombatants.Select(x => x.ID).ToArray();
             }
         }
 
@@ -1657,7 +1689,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
         }
 
         private static volatile bool isTimelineTicking = false;
-        private static volatile Action TimelineTickCallback;
+        private static volatile System.Action TimelineTickCallback;
         private static TimeSpan TimelineDefaultInterval => TimeSpan.FromMilliseconds(TimelineSettings.Instance.ProgressBarRefreshInterval);
         private static readonly TimeSpan TimelineIdleInterval = TimeSpan.FromSeconds(5);
 
@@ -1753,11 +1785,13 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
 
             this.lastTimelineRefreshTimestamp = DateTime.Now;
 
+            var currentActivityLine = this.ActivityLine.ToArray();
+
             // 通知を判定する
             await Task.Run(() =>
             {
                 var toNotify =
-                from x in this.ActivityLine
+                from x in currentActivityLine
                 where
                 !x.IsNotified &&
                 x.Time + TimeSpan.FromSeconds(x.NoticeOffset.Value) <= this.CurrentTime
@@ -1797,7 +1831,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
 
             // 表示を終了させる
             var toDoneTop = await Task.Run(() => (
-                from x in this.ActivityLine
+                from x in currentActivityLine
                 where
                 !x.IsDone &&
                 x.Time <= this.CurrentTime - timeToHide
@@ -1820,7 +1854,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
 
             // Activeなアクティビティを決める
             var active = await Task.Run(() => (
-                from x in this.ActivityLine
+                from x in currentActivityLine
                 where
                 !x.IsActive &&
                 !x.IsDone &&
@@ -1883,7 +1917,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
             var maxTime = this.CurrentTime.Add(TimeSpan.FromSeconds(
                 TimelineSettings.Instance.ShowActivitiesTime));
 
-            var toShow = Task.Run(() => (
+            var toShow = (
                 from x in this.ActivityLine
                 where
                 x.Enabled.GetValueOrDefault() &&
@@ -1891,7 +1925,7 @@ namespace ACT.SpecialSpellTimer.RaidTimeline
                 orderby
                 x.Seq ascending
                 select
-                x).ToArray()).Result;
+                x).ToArray();
 
             var count = 0;
             foreach (var x in toShow)

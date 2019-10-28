@@ -131,12 +131,12 @@ namespace ACT.SpecialSpellTimer.Views
 
         public IList<Spell> Spells { get; set; }
 
-        private ObservableCollection<Spell> activeSpells = new ObservableCollection<Spell>();
+        private readonly ObservableCollection<Spell> activeSpells = new ObservableCollection<Spell>();
 
         public CollectionViewSource ActiveSpellViewSource;
         public ICollectionView ActiveSpellView => this.ActiveSpellViewSource?.View;
 
-        private List<SpellControl> spellControls = new List<SpellControl>();
+        private readonly List<SpellControl> spellControls = new List<SpellControl>();
 
         private SolidColorBrush backgroundBrush;
 
@@ -174,6 +174,7 @@ namespace ACT.SpecialSpellTimer.Views
                 this.Panel == null)
             {
                 this.HideOverlay();
+                this.Topmost = false;
                 this.activeSpells.Clear();
                 this.ClearSpellControls();
                 return;
@@ -321,7 +322,12 @@ namespace ACT.SpecialSpellTimer.Views
 
             if (this.activeSpells.Any())
             {
-                this.ShowOverlay();
+                if (this.ShowOverlay())
+                {
+                    this.Topmost = true;
+                    this.SubscribeZOrderCorrector();
+                    this.EnsureTopMost();
+                }
             }
         }
 

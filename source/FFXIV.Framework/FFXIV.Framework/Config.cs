@@ -61,29 +61,37 @@ namespace FFXIV.Framework
 
         public static void Save()
         {
-            var directoryName = Path.GetDirectoryName(FileName);
-
-            if (!Directory.Exists(directoryName))
+            if (instance == null)
             {
-                Directory.CreateDirectory(directoryName);
+                return;
             }
 
-            var ns = new XmlSerializerNamespaces();
-            ns.Add(string.Empty, string.Empty);
-
-            var sb = new StringBuilder();
-            using (var sw = new StringWriter(sb))
+            lock (instance)
             {
-                var xs = new XmlSerializer(instance.GetType());
-                xs.Serialize(sw, instance, ns);
+                var directoryName = Path.GetDirectoryName(FileName);
+
+                if (!Directory.Exists(directoryName))
+                {
+                    Directory.CreateDirectory(directoryName);
+                }
+
+                var ns = new XmlSerializerNamespaces();
+                ns.Add(string.Empty, string.Empty);
+
+                var sb = new StringBuilder();
+                using (var sw = new StringWriter(sb))
+                {
+                    var xs = new XmlSerializer(instance.GetType());
+                    xs.Serialize(sw, instance, ns);
+                }
+
+                sb.Replace("utf-16", "utf-8");
+
+                File.WriteAllText(
+                    FileName,
+                    sb.ToString(),
+                    new UTF8Encoding(false));
             }
-
-            sb.Replace("utf-16", "utf-8");
-
-            File.WriteAllText(
-                FileName,
-                sb.ToString(),
-                new UTF8Encoding(false));
         }
 
         #endregion Load & Save
@@ -91,18 +99,22 @@ namespace FFXIV.Framework
         #region Default Values
 
         private const bool SupportWin7Default = false;
+        private const int WasapiLatencyDefault = 200;
         private const int WasapiMultiplePlaybackCountDefault = 4;
         private const double WasapiLoopBufferDurationDefault = 20;
 
         #endregion Default Values
 
-        private bool supportWin7 = SupportWin7Default;
+        [XmlIgnore]
+        public bool SupportWin7 => SupportWin7Default;
 
-        [DefaultValue(SupportWin7Default)]
-        public bool SupportWin7
+        private int wasapiLatency = WasapiLatencyDefault;
+
+        [DefaultValue(WasapiMultiplePlaybackCountDefault)]
+        public int WasapiLatency
         {
-            get => this.supportWin7;
-            set => this.SetProperty(ref this.supportWin7, value);
+            get => this.wasapiLatency;
+            set => this.SetProperty(ref this.wasapiLatency, value);
         }
 
         private int wasapiMultiplePlaybackCount = WasapiMultiplePlaybackCountDefault;

@@ -1,6 +1,3 @@
-using ACT.SpecialSpellTimer.Config;
-using ACT.SpecialSpellTimer.Models;
-using FFXIV.Framework.WPF.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +9,9 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using ACT.SpecialSpellTimer.Config;
+using ACT.SpecialSpellTimer.Models;
+using FFXIV.Framework.WPF.Views;
 
 namespace ACT.SpecialSpellTimer.Views
 {
@@ -154,12 +154,12 @@ namespace ACT.SpecialSpellTimer.Views
             set => this.SetProperty(ref this.spells, value);
         }
 
-        private ObservableCollection<Spell> activeSpells = new ObservableCollection<Spell>();
+        private readonly ObservableCollection<Spell> activeSpells = new ObservableCollection<Spell>();
 
         public CollectionViewSource ActiveSpellViewSource;
         public ICollectionView ActiveSpellView => this.ActiveSpellViewSource?.View;
 
-        private List<SpellControl> spellControls = new List<SpellControl>();
+        private readonly List<SpellControl> spellControls = new List<SpellControl>();
 
         public void Refresh()
         {
@@ -168,6 +168,7 @@ namespace ACT.SpecialSpellTimer.Views
             // 表示するものがなければ何もしない
             if (this.Spells == null)
             {
+                this.Topmost = false;
                 this.HideOverlay();
                 this.activeSpells.Clear();
                 this.ClearSpellControls();
@@ -227,7 +228,12 @@ namespace ACT.SpecialSpellTimer.Views
 
             if (this.activeSpells.Any())
             {
-                this.ShowOverlay();
+                if (this.ShowOverlay())
+                {
+                    this.Topmost = true;
+                    this.SubscribeZOrderCorrector();
+                    this.EnsureTopMost();
+                }
             }
         }
 

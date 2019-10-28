@@ -171,67 +171,73 @@ namespace ACT.UltraScouter.Models.FFLogs
                 // for KR region
                 foreach (var spec in this.SpecDictionary)
                 {
-                    var page = 1;
-                    var rankings = default(RankingsModel);
-
-                    do
+                    var servers = new List<string> { "Moogle", "Tonberry", "Carbuncle", "Chocobo" };
+                    foreach (var server in servers)
                     {
-                        var uri = $"rankings/encounter/{encounter.ID}";
-                        var query = HttpUtility.ParseQueryString(string.Empty);
-                        query["api_key"] = this.APIKey;
-                        query["page"] = page.ToString();
-                        // for KR region
-                        query["region"] = "KR";
-                        query["spec"] = spec.Value.ID.ToString();
-                        uri += $"?{query.ToString()}";
+                        var page = 1;
+                        var rankings = default(RankingsModel);
 
-                        rankings = null;
-                        var res = await this.HttpClient.GetAsync(uri);
-                        if (res.StatusCode == HttpStatusCode.OK)
+                        do
                         {
-                            var json = await res.Content.ReadAsStringAsync();
-                            rankings = JsonConvert.DeserializeObject<RankingsModel>(json);
-                            if (rankings != null)
+                            var uri = $"rankings/encounter/{encounter.ID}";
+                            var query = HttpUtility.ParseQueryString(string.Empty);
+                            query["api_key"] = this.APIKey;
+                            query["page"] = page.ToString();
+                            // for KR region
+                            query["region"] = "KR";
+                            query["server"] = server;
+                            // end for KR region
+                            query["spec"] = spec.Value.ID.ToString();
+                            uri += $"?{query.ToString()}";
+
+                            rankings = null;
+                            var res = await this.HttpClient.GetAsync(uri);
+                            if (res.StatusCode == HttpStatusCode.OK)
                             {
-                                var targets = rankings.Rankings;
-                                targets.AsParallel().ForAll(item =>
+                                var json = await res.Content.ReadAsStringAsync();
+                                rankings = JsonConvert.DeserializeObject<RankingsModel>(json);
+                                if (rankings != null)
                                 {
-                                    item.Database = this;
-                                    item.EncounterName = encounter.Name;
-
-                                    if (this.SpecDictionary != null &&
-                                        this.SpecDictionary.ContainsKey(item.SpecID))
+                                    var targets = rankings.Rankings;
+                                    targets.AsParallel().ForAll(item =>
                                     {
-                                        item.Spec = this.SpecDictionary[item.SpecID].Name;
-                                    }
-                                });
+                                        item.Database = this;
+                                        item.EncounterName = encounter.Name;
 
-                                rankingBuffer.AddRange(rankings.Rankings);
+                                        if (this.SpecDictionary != null &&
+                                            this.SpecDictionary.ContainsKey(item.SpecID))
+                                        {
+                                            item.Spec = this.SpecDictionary[item.SpecID].Name;
+                                        }
+                                    });
+
+                                    rankingBuffer.AddRange(rankings.Rankings);
+                                }
+
+                                if (page % 100 == 0)
+                                {
+                                    this.InsertRanking(rankingFileName, rankingBuffer);
+                                    rankingBuffer.Clear();
+                                    this.Log($@"[FFLogs] new rankings downloaded. ""{encounter.Name}"" page {page}.");
+                                }
+
+                                page++;
                             }
-
-                            if (page % 100 == 0)
+                            else
                             {
-                                this.InsertRanking(rankingFileName, rankingBuffer);
-                                rankingBuffer.Clear();
-                                this.Log($@"[FFLogs] new rankings downloaded. ""{encounter.Name}"" page {page}.");
+                                this.LogError(
+                                    $"[FFLogs] Error, REST API Response not OK. status_code={res.StatusCode}");
+                                this.LogError(await res?.Content.ReadAsStringAsync());
+                                break;
                             }
 
-                            page++;
-                        }
-                        else
-                        {
-                            this.LogError(
-                                $"[FFLogs] Error, REST API Response not OK. status_code={res.StatusCode}");
-                            this.LogError(await res?.Content.ReadAsStringAsync());
-                            break;
-                        }
+                            await Task.Delay(TimeSpan.FromSeconds(0.50));
+                        } while (rankings != null && rankings.HasMorePages);
 
-                        await Task.Delay(TimeSpan.FromSeconds(0.50));
-                    } while (rankings != null && rankings.HasMorePages);
-
-                    this.InsertRanking(rankingFileName, rankingBuffer);
-                    rankingBuffer.Clear();
-                    this.Log($@"[FFLogs] new rankings downloaded. ""{encounter.Name}"" page {page} for {spec.Value.Name}.");
+                        this.InsertRanking(rankingFileName, rankingBuffer);
+                        rankingBuffer.Clear();
+                        this.Log($@"[FFLogs] new rankings downloaded. ""{encounter.Name}"" for {spec.Value.Name} ({page} pages, at {server}).");
+                    }
                 }
             }
 

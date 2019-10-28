@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -35,6 +36,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>
@@ -83,7 +85,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>$(ProjectDir)tools\libz.exe inject-dll --assembly $(TargetPath) --include Octokit.dll --move | FindStr Injecting
-</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName)==Release (
+$(ProjectDir)tools\libz.exe inject-dll --assembly $(TargetPath) --include Octokit.dll --move | FindStr Injecting
+)</PostBuildEvent>
   </PropertyGroup>
 </Project>

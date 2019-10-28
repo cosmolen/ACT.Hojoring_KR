@@ -10,7 +10,14 @@
   <system:String x:Key="General_TTSType">TTS Type</system:String>
   <system:String x:Key="General_SyncPlayback">Force Sync Playback</system:String>
   <system:String x:Key="General_SyncPlaybackDesc">All sounds are played back synchronously. Override SPESPE etc settings.</system:String>
+  <system:String x:Key="General_ClearBufferWithWipeout">Clear playback buffer when wipeout</system:String>
+  <system:String x:Key="General_ClearBuffer">Clear playback buffer</system:String>
   <system:String x:Key="General_ClearCache">Clear tts cache on exit.</system:String>
+  <system:String x:Key="General_Latency">Latency</system:String>
+  <system:String x:Key="General_PlaybackBufferCount">Playback buffer count</system:String>
+  <system:String x:Key="General_PlaybackBufferSize">Playback buffer size (second)</system:String>
+  <system:String x:Key="General_RequiresRestart">* requires reset</system:String>
+  <system:String x:Key="General_Reset">Reset</system:String>
   <system:String x:Key="General_OpenCacheDirectory">Open cache directory</system:String>
   <system:String x:Key="General_ClearCacheNow">Clear tts cache right now</system:String>
   <system:String x:Key="General_WaveVolume">Master Vol.</system:String>
@@ -109,6 +116,8 @@ For use for commercial purposes, a license to use the library is required.</syst
 &lt;mpp&gt;     MP rate (%)
 &lt;tp&gt;      TP value
 &lt;tpp&gt;     TP rate (%)
+&lt;gp&gt;      GP value
+&lt;gpp&gt;     GP rate (%)
 
 * Example
 &lt;pcname&gt;,HP&lt;hpp&gt;.

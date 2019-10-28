@@ -67,7 +67,9 @@ namespace FFXIV.Framework.FFXIVHelper
         /// <summary>
         /// ACTプラグイン型のプラグインオブジェクトのインスタンス
         /// </summary>
-        private IActPluginV1 ActPlugin => (IActPluginV1)this.plugin;
+        public IActPluginV1 ActPlugin => (IActPluginV1)this.plugin;
+
+        public System.Action ActPluginAttachedCallback { get; set; }
 
         public Locales FFXIVLocale
         {
@@ -106,7 +108,8 @@ namespace FFXIV.Framework.FFXIVHelper
                     case 1: return Locales.EN;
                     case 2: return Locales.FR;
                     case 3: return Locales.DE;
-                    case 4: return Locales.JA;
+                    // case 4: return Locales.JA; for KR region
+                    case 4: return Locales.KO;
                     default:
                         return Locales.EN;
                 }
@@ -225,9 +228,9 @@ namespace FFXIV.Framework.FFXIVHelper
             {
                 lock (this.WorldInfoDictionary)
                 {
-                    if (this.WorldInfoDictionary.ContainsKey((int)id))
+                    if (this.WorldInfoDictionary.ContainsKey(id))
                     {
-                        return this.WorldInfoDictionary[(int)id];
+                        return this.WorldInfoDictionary[id];
                     }
                     else
                     {
@@ -364,7 +367,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
         private readonly IReadOnlyList<Combatant> EmptyCombatantList = new List<Combatant>();
 
-        private IReadOnlyDictionary<int, Combatant> combatantDictionary = new Dictionary<int, Combatant>();
+        private IReadOnlyDictionary<uint, Combatant> combatantDictionary = new Dictionary<uint, Combatant>();
         private IReadOnlyList<Combatant> combatantList = new List<Combatant>();
         private IReadOnlyList<Combatant> partyList = new List<Combatant>();
 
@@ -375,9 +378,6 @@ namespace FFXIV.Framework.FFXIVHelper
         /// <summary>
         /// 戦闘中か？
         /// </summary>
-        /// <remarks>
-        /// パーティメンバのHP, MP, TPのいずれかが最大値でないとき簡易的に戦闘中と判断する
-        /// </remarks>
         public bool InCombat { get; private set; } = false;
 
         #region Dummy Combatants
@@ -443,7 +443,7 @@ namespace FFXIV.Framework.FFXIVHelper
             },
         };
 
-        private readonly int[] DummyPartyList = new int[]
+        private readonly uint[] DummyPartyList = new uint[]
         {
             1, 2, 3, 4, 5, 6, 7, 8
         };
@@ -513,7 +513,7 @@ namespace FFXIV.Framework.FFXIVHelper
             }
         }
 
-        private readonly Dictionary<int, (int WorldID, string WorldName)> WorldInfoDictionary = new Dictionary<int, (int WorldID, string WorldName)>(1024);
+        private readonly Dictionary<uint, (int WorldID, string WorldName)> WorldInfoDictionary = new Dictionary<uint, (int WorldID, string WorldName)>(1024);
 
         private void RefreshCombatantWorldInfo()
         {
@@ -543,7 +543,7 @@ namespace FFXIV.Framework.FFXIVHelper
                         continue;
                     }
 
-                    var id = (int)item.ID;
+                    var id = (uint)item.ID;
                     var worldID = (int)item.WorldID;
                     var worldName = (string)item.WorldName;
 
@@ -584,6 +584,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
         public bool RefreshInCombat()
         {
+#if false
             var result = false;
 
             var combatants = this.GetPartyList();
@@ -612,6 +613,9 @@ namespace FFXIV.Framework.FFXIVHelper
             }
 
             return result;
+#else
+            return SharlayanHelper.Instance.CurrentPlayer?.InCombat ?? false;
+#endif
         }
 
         public void SetSkillName(
@@ -625,10 +629,10 @@ namespace FFXIV.Framework.FFXIVHelper
             if (combatant.IsCasting)
             {
                 if (this.skillList != null &&
-                    this.skillList.ContainsKey((int)combatant.CastBuffID))
+                    this.skillList.ContainsKey((uint)combatant.CastBuffID))
                 {
                     combatant.CastSkillName =
-                        this.skillList[(int)combatant.CastBuffID].Name;
+                        this.skillList[(uint)combatant.CastBuffID].Name;
                 }
                 else
                 {
@@ -845,6 +849,8 @@ namespace FFXIV.Framework.FFXIVHelper
                     x.Level descending,
                     (x.MaxHP != x.CurrentHP ? 0 : 1) ascending,
                     x.MaxHP descending,
+                    x.Heading != 0 ? 0 : 1 ascending,
+                    (x.PosX + x.PosY + x.PosZ) != 0 ? 0 : 1 ascending,
                     x.ID descending
                     select
                     x).FirstOrDefault();
@@ -898,7 +904,7 @@ namespace FFXIV.Framework.FFXIVHelper
             }
         }
 
-        public int GetTargetID(
+        public uint GetTargetID(
             OverlayType type)
             => this.GetTargetInfo(type)?.ID ?? 0;
 
@@ -922,10 +928,10 @@ namespace FFXIV.Framework.FFXIVHelper
                     break;
 
                 case OverlayType.TargetOfTarget:
-                    var id = (int)(SharlayanHelper.Instance.TargetInfo?.CurrentTarget?.TargetID ?? 0);
+                    var id = (uint)(SharlayanHelper.Instance.TargetInfo?.CurrentTarget?.TargetID ?? 0);
                     if (id != 0)
                     {
-                        actor = SharlayanHelper.Instance.GetActor((uint)id);
+                        actor = SharlayanHelper.Instance.GetActor(id);
                     }
                     break;
             }
@@ -1003,8 +1009,6 @@ namespace FFXIV.Framework.FFXIVHelper
             {
                 this.AttachPlugin();
                 this.AttachScanMemory();
-
-                this.LoadSkillList();
             }
         }
 
@@ -1028,6 +1032,8 @@ namespace FFXIV.Framework.FFXIVHelper
             {
                 this.plugin = ffxivPlugin;
                 AppLogger.Trace("attached ffxiv plugin.");
+
+                this.ActPluginAttachedCallback?.Invoke();
             }
         }
 
@@ -1096,14 +1102,14 @@ namespace FFXIV.Framework.FFXIVHelper
 
         private static readonly object ResourcesLock = new object();
 
-        private Dictionary<int, Buff> buffList = new Dictionary<int, Buff>();
-        private Dictionary<int, Skill> skillList = new Dictionary<int, Skill>();
-        private Dictionary<int, World> worldList = new Dictionary<int, World>();
+        private Dictionary<uint, Buff> buffList = new Dictionary<uint, Buff>();
+        private Dictionary<uint, Skill> skillList = new Dictionary<uint, Skill>();
+        private Dictionary<uint, World> worldList = new Dictionary<uint, World>();
         private List<Zone> zoneList = new List<Zone>();
 
         public IReadOnlyList<Zone> ZoneList => this.zoneList;
-        public IReadOnlyDictionary<int, Skill> SkillList => this.skillList;
-        public IReadOnlyDictionary<int, World> WorldList => this.worldList;
+        public IReadOnlyDictionary<uint, Skill> SkillList => this.skillList;
+        public IReadOnlyDictionary<uint, World> WorldList => this.worldList;
 
         public Regex WorldNameRemoveRegex { get; private set; }
 
@@ -1125,7 +1131,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
             using (var st = asm.GetManifestResourceStream(resourcesName))
             {
-                var newList = new Dictionary<int, World>();
+                var newList = new Dictionary<uint, World>();
 
                 if (st != null)
                 {
@@ -1141,7 +1147,7 @@ namespace FFXIV.Framework.FFXIVHelper
                                 {
                                     var entry = new World()
                                     {
-                                        ID = int.Parse(values[0]),
+                                        ID = uint.Parse(values[0]),
                                         Name = values[1].Trim()
                                     };
 
@@ -1219,7 +1225,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
             using (var st = asm.GetManifestResourceStream(resourcesName))
             {
-                var newList = new Dictionary<int, Buff>();
+                var newList = new Dictionary<uint, Buff>();
 
                 if (st != null)
                 {
@@ -1235,7 +1241,7 @@ namespace FFXIV.Framework.FFXIVHelper
                                 {
                                     var buff = new Buff()
                                     {
-                                        ID = int.Parse(values[0], NumberStyles.HexNumber),
+                                        ID = uint.Parse(values[0], NumberStyles.HexNumber),
                                         Name = values[1].Trim()
                                     };
 
@@ -1270,7 +1276,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
             using (var st = asm.GetManifestResourceStream(resourcesName))
             {
-                var newList = new Dictionary<int, Skill>();
+                var newList = new Dictionary<uint, Skill>();
 
                 if (st != null)
                 {
@@ -1286,7 +1292,7 @@ namespace FFXIV.Framework.FFXIVHelper
                                 {
                                     var skill = new Skill()
                                     {
-                                        ID = int.Parse(values[0], NumberStyles.HexNumber),
+                                        ID = uint.Parse(values[0], NumberStyles.HexNumber),
                                         Name = values[1].Trim()
                                     };
 
@@ -1515,7 +1521,7 @@ namespace FFXIV.Framework.FFXIVHelper
                 BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(obj);
 
-            var pluginSkillList = list as SortedDictionary<int, string>;
+            var pluginSkillList = list as SortedDictionary<uint, string>;
 
             foreach (var entry in XIVDB.Instance.ActionList)
             {
@@ -1563,7 +1569,7 @@ namespace FFXIV.Framework.FFXIVHelper
                 BindingFlags.NonPublic | BindingFlags.Instance)
                 .GetValue(obj);
 
-            var pluginList = list as SortedDictionary<int, string>;
+            var pluginList = list as SortedDictionary<uint, string>;
 
             foreach (var entry in XIVDB.Instance.BuffList)
             {

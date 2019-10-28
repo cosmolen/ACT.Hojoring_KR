@@ -35,10 +35,10 @@ namespace FFXIV.Framework.FFXIVHelper
 
         public long Index { get; private set; }
 
-        public int ID;
-        public int OwnerID;
+        public uint ID;
+        public uint OwnerID;
         public int Order;
-        public int TargetID;
+        public uint TargetID;
 
         public byte Job;
         public byte Level;
@@ -50,18 +50,25 @@ namespace FFXIV.Framework.FFXIVHelper
         public int MaxMP;
         public short CurrentTP;
         public short MaxTP;
+        public int CurrentCP;
+        public int MaxCP;
+        public int CurrentGP;
+        public int MaxGP;
 
         public Single PosX;
         public Single PosY;
         public Single PosZ;
-        public Single Heading;
+
+        private Single heading;
+        public float Heading { get => heading; set => heading = value; }
+
         public bool IsAvailableEffectiveDictance;
         public byte EffectiveDistance;
         public string Distance;
         public string HorizontalDistance;
 
         public bool IsCasting;
-        public int CastTargetID;
+        public uint CastTargetID;
         public int CastBuffID;
         public float CastDurationCurrent;
         public float CastDurationMax;
@@ -69,7 +76,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
         public DateTime Timestamp = DateTime.Now;
 
-        public int TargetOfTargetID;
+        public uint TargetOfTargetID;
 
         public Combatant Player => FFXIVPlugin.Instance.GetPlayer();
 
@@ -241,7 +248,9 @@ namespace FFXIV.Framework.FFXIVHelper
         }
 
         public string NamesRegex =>
-            this.Names.Replace(@".", @"\.");
+            this.Names
+                .Replace(@".", @"\.")
+                .Replace(@"-", @"\-");
 
         public Job AsJob() => Jobs.Find(this.Job);
 
@@ -327,7 +336,7 @@ namespace FFXIV.Framework.FFXIVHelper
             });
         }
 
-        public int GetID => this.ID;
+        public uint GetID => this.ID;
 
         public string GetName => this.Name;
 

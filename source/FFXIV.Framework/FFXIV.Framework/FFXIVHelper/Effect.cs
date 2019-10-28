@@ -2,7 +2,7 @@ namespace FFXIV.Framework.FFXIVHelper
 {
     public class Effect
     {
-        public int TargetID;
+        public uint TargetID;
 
         public string TargetName;
 
@@ -14,7 +14,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
         public float Timer;
 
-        public int ActorID;
+        public uint ActorID;
 
         public string ActorName;
 

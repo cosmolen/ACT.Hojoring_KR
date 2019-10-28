@@ -61,6 +61,7 @@ namespace ACT.UltraScouter.Models.Enmity
         private static SolidColorBrush TankBrush;
         private static SolidColorBrush HealerBrush;
         private static SolidColorBrush DPSBrush;
+        private SolidColorBrush NearBrush;
 
         public static void CreateBrushes()
         {
@@ -69,10 +70,19 @@ namespace ACT.UltraScouter.Models.Enmity
                 return;
             }
 
+            /*
+            彩度調整版
             MeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e6b422"));
             TankBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#00a1e9"));
             HealerBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#82ae46"));
             DPSBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e60033"));
+            */
+
+            // デフォルトカラー
+            MeBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#e6b422"));
+            TankBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3849A1"));
+            HealerBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#467737"));
+            DPSBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#AF3748"));
         }
 
         public SolidColorBrush BarColorBrush
@@ -82,6 +92,22 @@ namespace ACT.UltraScouter.Models.Enmity
                 if (this.isMe)
                 {
                     return MeBrush;
+                }
+
+                if (this.Config.IsNearIndicator)
+                {
+                    if (!this.IsNear)
+                    {
+                        return Brushes.Transparent;
+                    }
+
+                    if (this.NearBrush == null ||
+                        this.NearBrush.Color != this.Config.NearColor)
+                    {
+                        this.NearBrush = new SolidColorBrush(this.Config.NearColor);
+                    }
+
+                    return this.NearBrush;
                 }
 
                 var role = Jobs.Find(this.jobID)?.Role ?? Roles.Unknown;
@@ -104,6 +130,14 @@ namespace ACT.UltraScouter.Models.Enmity
                         return Brushes.Gray;
                 }
             }
+        }
+
+        private bool isTop;
+
+        public bool IsTop
+        {
+            get => this.isTop;
+            set => this.SetProperty(ref this.isTop, value);
         }
 
         private bool isMe;
@@ -136,6 +170,28 @@ namespace ACT.UltraScouter.Models.Enmity
             set => this.SetProperty(ref this.enmity, value);
         }
 
+        private double enmityDifference;
+
+        public double EnmityDifference
+        {
+            get => this.enmityDifference;
+            set => this.SetProperty(ref this.enmityDifference, value);
+        }
+
+        private bool isNear;
+
+        public bool IsNear
+        {
+            get => this.isNear;
+            set
+            {
+                if (this.SetProperty(ref this.isNear, value))
+                {
+                    this.RefreshBarColor();
+                }
+            }
+        }
+
         private float hateRate;
 
         public float HateRate
@@ -152,7 +208,9 @@ namespace ACT.UltraScouter.Models.Enmity
 
         public DisplayText DisplayText => Settings.Instance.Enmity.DisplayText;
 
-        public double BarWidth => Settings.Instance.Enmity.BarWidth * this.HateRate;
+        public double BarWidth => !this.Config.IsNearIndicator ?
+            Settings.Instance.Enmity.BarWidth * this.HateRate :
+            Settings.Instance.Enmity.BarWidth;
 
         public double BarWidthMax => Settings.Instance.Enmity.BarWidth;
 
@@ -160,6 +218,11 @@ namespace ACT.UltraScouter.Models.Enmity
         {
             this.RaisePropertyChanged(nameof(this.BarWidthMax));
             this.RaisePropertyChanged(nameof(this.BarWidth));
+        }
+
+        public void RefreshBarColor()
+        {
+            this.RaisePropertyChanged(nameof(this.BarColorBrush));
         }
 
         /// <summary>

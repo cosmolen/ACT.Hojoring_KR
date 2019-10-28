@@ -622,6 +622,12 @@ namespace ACT.UltraScouter.Config
         [DataMember(Order = 152)]
         public MPTicker MPTicker { get; set; }
 
+        /// <summary>
+        /// MyMarker
+        /// </summary>
+        [DataMember(Order = 153)]
+        public MyMarker MyMarker { get; set; }
+
         #endregion Me
 
         #region MobList
@@ -631,6 +637,16 @@ namespace ACT.UltraScouter.Config
         /// </summary>
         [DataMember(Order = 161)]
         public MobList MobList { get; set; }
+
+        #endregion MobList
+
+        #region MobList
+
+        /// <summary>
+        /// 戦術レーダー
+        /// </summary>
+        [DataMember(Order = 162)]
+        public TacticalRadar TacticalRadar { get; set; }
 
         #endregion MobList
 

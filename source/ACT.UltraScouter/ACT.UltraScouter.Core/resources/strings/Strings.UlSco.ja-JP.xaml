@@ -14,7 +14,7 @@
   <system:String x:Key="GeneralConfig_LogPollingPriority">メモリの監視の優先度</system:String>
   <system:String x:Key="GeneralConfig_OverlayRefreshPriority">オーバーレイの描画の優先度</system:String>
   <system:String x:Key="GeneralConfig_RestartThreads">スレッドを再起動する</system:String>
-  <system:String x:Key="GeneralConfig_AnimationMaxFPS">アニメーションの最大FPS</system:String>
+  <system:String x:Key="GeneralConfig_AnimationMaxFPS">アニメーションの最大FPS (0にすると自動調整)</system:String>
   <system:String x:Key="GeneralConfig_TextStrokeThickenessGain">テキストのアウトライン増幅率</system:String>
   <system:String x:Key="GeneralConfig_TextBlurGain">テキストのブラー増幅率</system:String>
   <system:String x:Key="GeneralConfig_Sound">サウンド</system:String>
@@ -24,7 +24,9 @@
 
   <system:String x:Key="Common_Visible">表示する</system:String>
   <system:String x:Key="Common_Location">ロケーション</system:String>
+  <system:String x:Key="Common_Alignment">アライメント</system:String>
   <system:String x:Key="Common_BarWidth">バーの幅</system:String>
+  <system:String x:Key="Common_BarSize">バーのサイズ</system:String>
   <system:String x:Key="Common_Scale">スケール</system:String>
   <system:String x:Key="Common_Background">背景色</system:String>
   <system:String x:Key="Common_Font">フォント</system:String>
@@ -107,9 +109,18 @@
   <system:String x:Key="Enmity_DisplayPCasYou">自キャラを"You"と表記する</system:String>
   <system:String x:Key="Enmity_IsDenomi">1,000未満の値をカットする</system:String>
   <system:String x:Key="Enmity_IsVisibleJobIcon">ジョブアイコンを表示する</system:String>
+  <system:String x:Key="Enmity_IsIconRight">アイコンを右に表示する</system:String>
+  <system:String x:Key="Enmity_IsVisibleName">キャラ名を表示する</system:String>
+  <system:String x:Key="Enmity_IsDifferenceMode">GUILTEX Style (相対値表示にする)</system:String>
   <system:String x:Key="Enmity_JobIconScale">ジョブアイコンのスケール</system:String>
   <system:String x:Key="Enmity_MaxCountOfDisplay">リストの最大表示数</system:String>
   <system:String x:Key="Enmity_ScaningRate">敵視情報のスキャンレート (msec)</system:String>
+  <system:String x:Key="Enmity_AlterTextMeValue">自分の値の代替テキスト</system:String>
+  <system:String x:Key="Enmity_IsNearIndicator">バーを敵視接近のインジケータとする</system:String>
+  <system:String x:Key="Enmity_NearIndicatorColor">敵視接近の警告色</system:String>
+  <system:String x:Key="Enmity_NearThresholdRate">敵視接近の閾値倍率</system:String>
+  <system:String x:Key="Enmity_IsVisibleNearThreshold">敵視接近の閾値を表示する</system:String>
+  <system:String x:Key="Enmity_LogDirectory">ログフォルダ</system:String>
 
   <system:String x:Key="FFLogs_VisibleHistogram">ヒストグラムを表示する</system:String>
   <system:String x:Key="FFLogs_HideInCombat">戦闘中は表示しない</system:String>
@@ -117,6 +128,13 @@
 戦闘中の判定は簡易的です。
 パーティメンバーのHP, TP, MPのいずれかが最大値でないとき戦闘中と判断します。
   </system:String>
+
+  <system:String x:Key="TacticalRadar_HorizontalLayout">水平レイアウト</system:String>
+  <system:String x:Key="TacticalRadar_Target">戦術ターゲット</system:String>
+  <system:String x:Key="TacticalRadar_TargetName">ターゲット名</system:String>
+  <system:String x:Key="TacticalRadar_DetectRange">感知距離</system:String>
+  <system:String x:Key="TacticalRadar_NoticeEnabled">通知する</system:String>
+  <system:String x:Key="TacticalRadar_Enabled">有効</system:String>
 
   <system:String x:Key="Help_GotoLastestRelease">GitHubの最終リリースを確認する</system:String>
   <system:String x:Key="Help_ContactToAnoyetta">Discordのフォーラムに参加する</system:String>

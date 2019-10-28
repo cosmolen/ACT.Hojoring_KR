@@ -1,11 +1,13 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using FFXIV.Framework.Bridge;
 using FFXIV.Framework.Common;
+using NLog;
 using Prism.Commands;
 using Prism.Mvvm;
 
@@ -13,7 +15,15 @@ namespace ACT.TTSYukkuri.Config.ViewModels
 {
     public class GeneralViewModel : BindableBase
     {
+        #region Logger
+
+        private Logger Logger => AppLog.DefaultLogger;
+
+        #endregion Logger
+
         public Settings Config => Settings.Default;
+
+        public FFXIV.Framework.Config FrameworkConfig => FFXIV.Framework.Config.Instance;
 
         public ComboBoxItem[] TTSTypes => TTSType.ToComboBox;
 
@@ -102,5 +112,30 @@ namespace ACT.TTSYukkuri.Config.ViewModels
                     this.Config.SubDeviceID = devices.FirstOrDefault()?.ID;
                 }
             }));
+
+        private DelegateCommand clearBufferCommand;
+
+        public DelegateCommand ClearBufferCommand =>
+            this.clearBufferCommand ?? (this.clearBufferCommand = new DelegateCommand(this.ExecuteClearBufferCommand));
+
+        private void ExecuteClearBufferCommand()
+        {
+            BufferedWavePlayer.Instance?.ClearBuffers();
+            this.Logger.Info("Playback buffers cleared.");
+        }
+
+        private DelegateCommand resetWasapiDeviceCommand;
+
+        public DelegateCommand ResetWasapiDeviceCommand =>
+            this.resetWasapiDeviceCommand ?? (this.resetWasapiDeviceCommand = new DelegateCommand(this.ExecuteResetWasapiDeviceCommand));
+
+        private void ExecuteResetWasapiDeviceCommand()
+        {
+            SoundPlayerWrapper.Init();
+            Thread.Sleep(10);
+            SoundPlayerWrapper.LoadTTSCache();
+
+            this.Logger.Info("Reset WASAPI Player, and Reload TTS chache.");
+        }
     }
 }

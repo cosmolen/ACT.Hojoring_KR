@@ -162,6 +162,14 @@ namespace ACT.UltraScouter.Config.UI.ViewModels
                                 DataContext = new MPTickerConfigViewModel()
                             }
                         },
+
+                        new TreeSource("My Marker")
+                        {
+                            Content = new MyMarkerConfigView()
+                            {
+                                DataContext = new MyMarkerConfigViewModel()
+                            }
+                        },
                     },
                 },
 
@@ -182,6 +190,14 @@ namespace ACT.UltraScouter.Config.UI.ViewModels
                             }
                         }
                     }
+                },
+
+                new TreeSource("Tactical Radar")
+                {
+                    Content = new TacticalRadarConfigView()
+                    {
+                        DataContext = new TacticalRadarConfigViewModel()
+                    },
                 }
             };
 

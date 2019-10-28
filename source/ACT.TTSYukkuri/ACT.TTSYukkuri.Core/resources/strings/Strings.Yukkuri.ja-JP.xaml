@@ -10,7 +10,14 @@
   <system:String x:Key="General_TTSType">TTSの種類</system:String>
   <system:String x:Key="General_SyncPlayback">強制的に同期再生する</system:String>
   <system:String x:Key="General_SyncPlaybackDesc">スペスペ等の設定に関係なくすべてのサウンドを同期再生します。</system:String>
+  <system:String x:Key="General_ClearBufferWithWipeout">ワイプアウトしたときに再生バッファをクリアする</system:String>
+  <system:String x:Key="General_ClearBuffer">再生バッファをクリアする</system:String>
   <system:String x:Key="General_ClearCache">終了時にキャッシュをクリアする</system:String>
+  <system:String x:Key="General_Latency">レイテンシー</system:String>
+  <system:String x:Key="General_PlaybackBufferCount">再生バッファ数</system:String>
+  <system:String x:Key="General_PlaybackBufferSize">再生バッファサイズ(秒)</system:String>
+  <system:String x:Key="General_RequiresRestart">※要リセット</system:String>
+  <system:String x:Key="General_Reset">リセット</system:String>
   <system:String x:Key="General_OpenCacheDirectory">キャッシュディレクトリを開く</system:String>
   <system:String x:Key="General_ClearCacheNow">キャッシュをクリアする</system:String>
   <system:String x:Key="General_WaveVolume">マスタボリューム</system:String>
@@ -109,6 +116,8 @@
 &lt;mpp&gt;     MPの割合(%)
 &lt;tp&gt;      TPの値
 &lt;tpp&gt;     TPの割合(%)
+&lt;gp&gt;      GPの値
+&lt;gpp&gt;     GPの割合(%)
 
 ※例
 &lt;pcname&gt;,HP&lt;hpp&gt;.

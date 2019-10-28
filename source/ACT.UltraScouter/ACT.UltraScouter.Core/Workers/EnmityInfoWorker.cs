@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using ACT.UltraScouter.Config;
 using ACT.UltraScouter.Models;
 using ACT.UltraScouter.Models.Enmity;
 using ACT.UltraScouter.ViewModels;
+using Advanced_Combat_Tracker;
 using FFXIV.Framework.Bridge;
 using FFXIV.Framework.FFXIVHelper;
 using Sharlayan.Core.Enums;
@@ -22,7 +28,20 @@ namespace ACT.UltraScouter.Workers
 
         public static new void Initialize() => instance = new EnmityInfoWorker();
 
-        public static new void Free() => instance = null;
+        public static new void Free()
+        {
+            lock (LogLocker)
+            {
+                if (instance.logStream != null)
+                {
+                    instance.logStream.Flush();
+                    instance.logStream.Close();
+                    instance.logStream = null;
+                }
+            }
+
+            instance = null;
+        }
 
         private EnmityInfoWorker()
         {
@@ -44,6 +63,7 @@ namespace ACT.UltraScouter.Workers
             if (!Settings.Instance.Enmity.Visible)
             {
                 this.ClearCurrentEnmity();
+                this.DiffSampleTimer.Stop();
                 return;
             }
 
@@ -52,7 +72,13 @@ namespace ACT.UltraScouter.Workers
             if (targetInfo == null)
             {
                 this.ClearCurrentEnmity();
+                this.DiffSampleTimer.Stop();
                 return;
+            }
+
+            if (!this.DiffSampleTimer.IsRunning)
+            {
+                this.DiffSampleTimer.Start();
             }
 
             if (!Settings.Instance.Enmity.IsDesignMode)
@@ -120,11 +146,87 @@ namespace ACT.UltraScouter.Workers
                     model.HateRate = entry.HateRate / 100f;
                     model.IsMe = entry.IsMe;
                     model.IsPet = entry.IsPet;
+                    model.IsTop = count <= 1;
                     this.CurrentEnmityModelList.Add(model);
 
                     Thread.Yield();
                 }
+
+                // EPSを更新する
+                var isRefreshed = this.RefreshEPS();
+
+                // ログを出力する
+                if (isRefreshed)
+                {
+                    this.WriteEnmityLog(enmityEntryList);
+                }
             }
+        }
+
+        private bool RefreshEPS()
+        {
+            if (this.DiffSampleTimer.Elapsed.TotalSeconds < 3.0)
+            {
+                return false;
+            }
+
+            this.DiffSampleTimer.Restart();
+
+            var me = this.CurrentEnmityModelList.FirstOrDefault(x => x.IsMe);
+            var sample = (
+                from x in this.CurrentEnmityModelList
+                where
+                x.JobID == JobIDs.PLD ||
+                x.JobID == JobIDs.WAR ||
+                x.JobID == JobIDs.DRK
+                orderby
+                Math.Abs(x.Enmity - (me?.Enmity ?? 0)) ascending
+                select
+                x).FirstOrDefault();
+
+            if (sample == null)
+            {
+                this.currentTankEPS = 0;
+                this.currentNearThreshold = 0;
+
+                return true;
+            }
+
+            var last = this.DiffEnmityList.LastOrDefault();
+
+            var diff = Math.Abs(sample.Enmity - (last?.Value ?? 0));
+
+            var now = DateTime.Now;
+
+            this.DiffEnmityList.Add(new DiffEnmity()
+            {
+                Timestamp = now,
+                SampleName = sample.Name,
+                Value = sample.Enmity,
+                Diff = diff,
+            });
+
+            var olds = this.DiffEnmityList
+                .Where(x => x.Timestamp < now.AddSeconds(-30))
+                .ToArray();
+
+            foreach (var item in olds)
+            {
+                this.DiffEnmityList.Remove(item);
+            }
+
+            var parameters = this.DiffEnmityList
+                .Where(x =>
+                    this.currentTankEPS <= 0 ||
+                    x.Diff <= (this.currentTankEPS * 10.0));
+
+            // EPSと危険域閾値を算出する
+            this.currentTankEPS = parameters.Any() ?
+                parameters.Average(x => x.Diff) :
+                0;
+            this.currentNearThreshold = this.currentTankEPS * Settings.Instance.Enmity.NearThresholdRate;
+
+            return true;
         }
 
         private void ClearCurrentEnmity()
@@ -138,7 +240,130 @@ namespace ACT.UltraScouter.Workers
             }
         }
 
+        private volatile bool currentInCombat = false;
+        private volatile string currentZone = string.Empty;
+        private volatile int currentTake = 0;
+        private volatile string currentLogFile = string.Empty;
+        private static readonly object LogLocker = new object();
+        private StreamWriter logStream;
+
+        private async void WriteEnmityLog(
+            IEnumerable<EnmityEntry> enmityEntryList)
+        {
+            var config = Settings.Instance.Enmity;
+
+            if (string.IsNullOrEmpty(config.LogDirectory))
+            {
+                return;
+            }
+
+            var player = SharlayanHelper.Instance.CurrentPlayer;
+            if (player == null)
+            {
+                return;
+            }
+
+#if !DEBUG
+            if (SharlayanHelper.Instance.PartyMemberCount < 4)
+            {
+                return;
+            }
+#endif
+
+            if (enmityEntryList.Count() < 1)
+            {
+                return;
+            }
+
+            if (!Directory.Exists(config.LogDirectory))
+            {
+                Directory.CreateDirectory(config.LogDirectory);
+            }
+
+            var now = DateTime.Now;
+
+            await Task.Run(() =>
+            {
+                lock (LogLocker)
+                {
+                    if (this.currentInCombat != player.InCombat)
+                    {
+                        this.currentInCombat = player.InCombat;
+
+                        if (this.currentInCombat)
+                        {
+                            this.currentTake++;
+                        }
+                        else
+                        {
+                            this.logStream?.Flush();
+                        }
+                    }
+
+                    var zone = ActGlobals.oFormActMain.CurrentZone;
+                    if (this.currentZone != zone)
+                    {
+                        this.currentZone = zone;
+                        this.logStream?.Flush();
+                    }
+
+                    var f = $"{now:yyyy-MM-dd}.Enmity.{zone}.take{this.currentTake}.csv";
+                    f = string.Concat(f.Where(c => !Path.GetInvalidFileNameChars().Contains(c)));
+
+                    var fileName = Path.Combine(
+                        config.LogDirectory,
+                        f);
+
+                    if (string.IsNullOrEmpty(this.currentLogFile) ||
+                        this.currentLogFile != fileName)
+                    {
+                        this.currentLogFile = fileName;
+
+                        if (this.logStream != null)
+                        {
+                            this.logStream.Flush();
+                            this.logStream.Close();
+                            this.logStream = null;
+                        }
+
+                        this.logStream = new StreamWriter(
+                            this.currentLogFile,
+                            false,
+                            new UTF8Encoding(false));
+                    }
+
+                    if (this.logStream != null)
+                    {
+                        var fields = new List<string>(24);
+
+                        fields.Add(now.ToString("yyyy-MM-dd HH:mm:ss.fff"));
+                        fields.Add("\"" + this.TargetInfo.Name + "\"");
+
+                        var party = FFXIVPlugin.Instance.GetPartyList();
+
+                        foreach (var member in party)
+                        {
+                            Thread.Yield();
+
+                            var enmityData = enmityEntryList.FirstOrDefault(x =>
+                                x.ID == member.ID);
+
+                            fields.Add("\"" + member.Name + "\"");
+                            fields.Add("\"" + member.JobID.ToString() + "\"");
+                            fields.Add((enmityData?.Enmity ?? 0).ToString("#"));
+                        }
+
+                        this.logStream.WriteLine(string.Join(",", fields));
+                    }
+                }
+            });
+        }
+
         private readonly List<EnmityModel> CurrentEnmityModelList = new List<EnmityModel>(32);
+        private readonly List<DiffEnmity> DiffEnmityList = new List<DiffEnmity>(64);
+        private readonly Stopwatch DiffSampleTimer = new Stopwatch();
+        private double currentTankEPS = 0;
+        private double currentNearThreshold = 0;
 
         protected override NameViewModel NameVM => null;
 
@@ -195,8 +420,22 @@ namespace ACT.UltraScouter.Workers
 
             lock (this.CurrentEnmityModelList)
             {
-                this.Model.RefreshEnmityList(this.CurrentEnmityModelList);
+                this.Model.RefreshEnmityList(
+                    this.CurrentEnmityModelList,
+                    this.currentTankEPS,
+                    this.currentNearThreshold);
             }
         }
+    }
+
+    public class DiffEnmity
+    {
+        public DateTime Timestamp { get; set; }
+
+        public string SampleName { get; set; }
+
+        public double Value { get; set; }
+
+        public double Diff { get; set; }
     }
 }

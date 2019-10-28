@@ -33,6 +33,12 @@ namespace FFXIV.Framework.FFXIVHelper
 
     public class SharlayanHelper
     {
+        #region Logger
+
+        private static NLog.Logger AppLogger => AppLog.DefaultLogger;
+
+        #endregion Logger
+
         private static readonly Lazy<SharlayanHelper> LazyInstance = new Lazy<SharlayanHelper>();
 
         public static SharlayanHelper Instance => LazyInstance.Value;
@@ -129,35 +135,20 @@ namespace FFXIV.Framework.FFXIVHelper
         private string currentFFXIVLanguage;
 
         // for KR region
-        public string currentFFXIVversion { get; private set; } = "4.45";
+        public string currentFFXIVversion { get; private set; } = "4.5";
 
         private void DetectFFXIVProcess()
         {
             var ffxiv = FFXIVPlugin.Instance.Process;
-            var ffxivLanguage = string.Empty;
-
-            switch (FFXIVPlugin.Instance.LanguageID)
+            var ffxivLanguage = FFXIVPlugin.Instance.LanguageID switch
             {
-                case Locales.EN:
-                    ffxivLanguage = "English";
-                    break;
-
-                case Locales.JA:
-                    ffxivLanguage = "Japanese";
-                    break;
-
-                case Locales.FR:
-                    ffxivLanguage = "French";
-                    break;
-
-                case Locales.DE:
-                    ffxivLanguage = "German";
-                    break;
-
-                default:
-                    ffxivLanguage = "English";
-                    break;
-            }
+                Locales.EN => "English",
+                // Locales.JA => "Japanese", for KR region
+                Locales.JA => "Korean",
+                Locales.FR => "French",
+                Locales.DE => "German",
+                _ => "English",
+            };
 
             if (ffxiv == null)
             {
@@ -167,11 +158,17 @@ namespace FFXIV.Framework.FFXIVHelper
             lock (this)
             {
                 if (!MemoryHandler.Instance.IsAttached ||
-                    this.currentFFXIVProcess != ffxiv ||
+                    this.currentFFXIVProcess == null ||
+                    this.currentFFXIVProcess?.Id != ffxiv?.Id ||
                     this.currentFFXIVLanguage != ffxivLanguage)
                 {
                     this.currentFFXIVProcess = ffxiv;
                     this.currentFFXIVLanguage = ffxivLanguage;
+
+                    if (MemoryHandler.Instance.IsAttached)
+                    {
+                        MemoryHandler.Instance.UnsetProcess();
+                    }
 
                     var model = new ProcessModel
                     {
@@ -182,10 +179,9 @@ namespace FFXIV.Framework.FFXIVHelper
                     MemoryHandler.Instance.SetProcess(
                         model,
                         ffxivLanguage,
-                        currentFFXIVversion // for KR region
-                        );
+                        currentFFXIVversion);
 
-                    ReaderEx.ProcessModel = model;
+                    ReaderEx.SetProcessModel(model);
 
                     this.ClearData();
                 }
@@ -605,29 +601,36 @@ namespace FFXIV.Framework.FFXIVHelper
 
             var composition = PartyCompositions.Unknown;
 
-            if (this.PartyMemberCount == 4)
+            var partyPCCount = newPartyList.Count(x => x.Type == Actor.Type.PC);
+            if (partyPCCount == 4)
             {
-                this.PartyComposition = PartyCompositions.LightParty;
+                composition = PartyCompositions.LightParty;
             }
             else
             {
-                if (this.PartyMemberCount == 8)
+                if (partyPCCount >= 8)
                 {
                     var tanks = this.PartyMemberList.Count(x => x.GetJobInfo().Role == Roles.Tank);
                     switch (tanks)
                     {
                         case 1:
-                            this.PartyComposition = PartyCompositions.FullPartyT1;
+                        case 3:
+                            composition = PartyCompositions.FullPartyT1;
                             break;
 
                         case 2:
-                            this.PartyComposition = PartyCompositions.FullPartyT2;
+                        case 6:
+                            composition = PartyCompositions.FullPartyT2;
                             break;
                     }
                 }
             }
 
-            this.PartyComposition = composition;
+            if (this.PartyComposition != composition)
+            {
+                this.PartyComposition = composition;
+                AppLogger.Info($"party composition changed. current={composition} party_count={partyPCCount}");
+            }
         }
 
         public List<Combatant> ToCombatantList(
@@ -691,13 +694,13 @@ namespace FFXIV.Framework.FFXIVHelper
             var c = current ?? new Combatant();
 
             c.ActorItem = actor;
-            c.ID = (int)actor.ID;
+            c.ID = actor.ID;
             c.ObjectType = actor.Type;
             c.Name = actor.Name;
             c.Level = actor.Level;
             c.Job = (byte)actor.Job;
-            c.TargetID = (int)actor.TargetID;
-            c.OwnerID = (int)actor.OwnerID;
+            c.TargetID = (uint)actor.TargetID;
+            c.OwnerID = actor.OwnerID;
 
             c.EffectiveDistance = actor.Distance;
             c.IsAvailableEffectiveDictance = true;
@@ -714,8 +717,13 @@ namespace FFXIV.Framework.FFXIVHelper
             c.CurrentTP = (short)actor.TPCurrent;
             c.MaxTP = (short)actor.TPMax;
 
+            c.CurrentCP = actor.CPCurrent;
+            c.MaxCP = actor.CPMax;
+            c.CurrentGP = actor.GPCurrent;
+            c.MaxGP = actor.GPMax;
+
             c.IsCasting = actor.IsCasting;
-            c.CastTargetID = (int)actor.CastingTargetID;
+            c.CastTargetID = actor.CastingTargetID;
             c.CastBuffID = actor.CastingID;
             c.CastDurationCurrent = actor.CastingProgress;
             c.CastDurationMax = actor.CastingTime;
@@ -725,7 +733,7 @@ namespace FFXIV.Framework.FFXIVHelper
             FFXIVPlugin.Instance.SetSkillName(c);
             c.SetName(actor.Name);
 
-            var worldInfo = GetWorldInfoCallback?.Invoke((uint)c.ID);
+            var worldInfo = GetWorldInfoCallback?.Invoke(c.ID);
             if (worldInfo.HasValue)
             {
                 c.WorldID = worldInfo.Value.WorldID;
@@ -749,7 +757,7 @@ namespace FFXIV.Framework.FFXIVHelper
             if (this.TargetInfo != null &&
                 this.TargetInfo.CurrentTarget != null)
             {
-                player.TargetOfTargetID = (int)this.TargetInfo.CurrentTarget?.TargetID;
+                player.TargetOfTargetID = (uint)this.TargetInfo.CurrentTarget?.TargetID;
             }
             else
             {
@@ -862,13 +870,17 @@ namespace FFXIV.Framework.FFXIVHelper
 
         public static Combatant CurrentPlayerCombatant { get; private set; }
 
-        public static ProcessModel ProcessModel { get; set; }
+        public static ProcessModel ProcessModel { get; private set; }
 
         public static Func<uint, ActorItem> GetActorCallback { get; set; }
 
         public static Func<uint, ActorItem> GetNPCActorCallback { get; set; }
 
-        private static readonly Lazy<Func<StructuresContainer>> LazyGetStructuresDelegate = new Lazy<Func<StructuresContainer>>(() =>
+        private static Func<StructuresContainer> getStructuresDelegate;
+
+        private static Func<StructuresContainer> GetStructuresDelegate => getStructuresDelegate ??= CreateGetStructuresDelegate();
+
+        private static Func<StructuresContainer> CreateGetStructuresDelegate()
         {
             var property = MemoryHandler.Instance.GetType().GetProperty(
                 "Structures",
@@ -878,7 +890,7 @@ namespace FFXIV.Framework.FFXIVHelper
                 typeof(Func<StructuresContainer>),
                 MemoryHandler.Instance,
                 property.GetMethod);
-        });
+        }
 
         // for KR region
         private static StructuresContainer GetCustomStructures()
@@ -899,6 +911,7 @@ namespace FFXIV.Framework.FFXIVHelper
 
             return resolved;
         }
+
 
 #if false
         private static readonly Lazy<Func<byte[], bool, ActorItem, ActorItem>> LazyResolveActorFromBytesDelegate = new Lazy<Func<byte[], bool, ActorItem, ActorItem>>(() =>
@@ -948,6 +961,13 @@ namespace FFXIV.Framework.FFXIVHelper
                 entry);
 #endif
 
+        public static void SetProcessModel(
+            ProcessModel model)
+        {
+            ProcessModel = model;
+            getStructuresDelegate = null;
+        }
+
         public static List<ActorItem> GetActorSimple(
             bool isScanNPC = false)
         {
@@ -963,7 +983,6 @@ namespace FFXIV.Framework.FFXIVHelper
             var targetAddress = IntPtr.Zero;
             var endianSize = isWin64 ? 8 : 4;
 
-            //var structures = LazyGetStructuresDelegate.Value.Invoke();
             var structures = GetCustomStructures();
             var sourceSize = structures.ActorItem.SourceSize;
             var limit = structures.ActorItem.EntityCount;
@@ -1054,7 +1073,6 @@ namespace FFXIV.Framework.FFXIVHelper
                 return result.ToArray();
             }
 
-            //var structures = LazyGetStructuresDelegate.Value.Invoke();
             var structures = GetCustomStructures();
 
             var PartyInfoMap = (IntPtr)Scanner.Instance.Locations[Signatures.PartyMapKey];
@@ -1348,7 +1366,6 @@ namespace FFXIV.Framework.FFXIVHelper
                 return result;
             }
 
-            //var structures = LazyGetStructuresDelegate.Value.Invoke();
             var structures = GetCustomStructures();
             var targetAddress = (IntPtr)Scanner.Instance.Locations[Signatures.TargetKey];
 

@@ -33,6 +33,11 @@ namespace ACT.TTSYukkuri
         private DateTime lastTPNotice = DateTime.MinValue;
 
         /// <summary>
+        /// 最後のGP通知日時
+        /// </summary>
+        private DateTime lastGPNotice = DateTime.MinValue;
+
+        /// <summary>
         /// 直前のパーティメンバ情報
         /// </summary>
         private volatile List<PreviousPartyMemberStatus> previouseParyMemberList = new List<PreviousPartyMemberStatus>();
@@ -68,6 +73,12 @@ namespace ACT.TTSYukkuri
                 var tp = partyMember.CurrentTP;
                 var tpp = ((decimal)partyMember.CurrentTP / 1000m) * 100m;
 
+                var gp = partyMember.CurrentGP;
+                var gpp =
+                    partyMember.MaxGP != 0 ?
+                    ((decimal)partyMember.CurrentGP / (decimal)partyMember.MaxGP) * 100m :
+                    0m;
+
                 // このPTメンバの直前の情報を取得する
                 var previousePartyMember = (
                     from x in this.previouseParyMemberList
@@ -84,7 +95,8 @@ namespace ACT.TTSYukkuri
                         Name = partyMember.Name,
                         HPRate = hpp,
                         MPRate = mpp,
-                        TPRate = tpp
+                        TPRate = tpp,
+                        GPRate = gpp,
                     };
 
                     this.previouseParyMemberList.Add(previousePartyMember);
@@ -134,10 +146,12 @@ namespace ACT.TTSYukkuri
                 var hpTextToSpeak = Settings.Default.StatusAlertSettings.HPTextToSpeack;
                 var mpTextToSpeak = Settings.Default.StatusAlertSettings.MPTextToSpeack;
                 var tpTextToSpeak = Settings.Default.StatusAlertSettings.TPTextToSpeack;
+                var gpTextToSpeak = Settings.Default.StatusAlertSettings.GPTextToSpeack;
 
                 hpTextToSpeak = replaceTTS(hpTextToSpeak);
                 mpTextToSpeak = replaceTTS(mpTextToSpeak);
                 tpTextToSpeak = replaceTTS(tpTextToSpeak);
+                gpTextToSpeak = replaceTTS(gpTextToSpeak);
 
                 var isUsingJob = false;
 
@@ -156,6 +170,8 @@ namespace ACT.TTSYukkuri
                     tts = tts.Replace("<mpp>", decimal.ToInt32(mpp).ToString());
                     tts = tts.Replace("<tp>", tp.ToString());
                     tts = tts.Replace("<tpp>", decimal.ToInt32(tpp).ToString());
+                    tts = tts.Replace("<gp>", gp.ToString());
+                    tts = tts.Replace("<gpp>", decimal.ToInt32(gpp).ToString());
                     return tts;
                 }
 
@@ -248,10 +264,42 @@ namespace ACT.TTSYukkuri
                     }
                 }
 
+                // GPをチェックして読上げる
+                if (hp > 0 &&
+                    partyMember.MaxGP > 0 &&
+                    partyMember.JobID.GetInfo()?.Role == Roles.Gatherer)
+                {
+                    if (config.EnabledGPAlert &&
+                        !string.IsNullOrWhiteSpace(gpTextToSpeak))
+                    {
+                        if (this.IsWatchTarget(partyMember, player, "GP"))
+                        {
+                            if (gpp >= (decimal)config.GPThreshold &&
+                                previousePartyMember.GPRate < (decimal)config.GPThreshold)
+                            {
+                                if ((DateTime.Now - this.lastGPNotice).TotalSeconds >= NoticeInterval)
+                                {
+                                    this.Speak(gpTextToSpeak, config.NoticeDeviceForGP);
+                                    this.lastGPNotice = DateTime.Now;
+                                }
+                            }
+                            else
+                            {
+                                if (gpp >= 100m && previousePartyMember.GPRate < 100m)
+                                {
+                                    this.SpeakEmpty("GP", deadman, config.NoticeDeviceForGP);
+                                    this.lastGPNotice = DateTime.Now;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 // 今回の状態を保存する
                 previousePartyMember.HPRate = hpp;
                 previousePartyMember.MPRate = mpp;
                 previousePartyMember.TPRate = tpp;
+                previousePartyMember.GPRate = gpp;
             }
         }
 
@@ -299,6 +347,10 @@ namespace ACT.TTSYukkuri
                     tts = died;
                     break;
 
+                case "GP":
+                    tts = full;
+                    break;
+
                 default:
                     tts = empty;
                     break;
@@ -336,6 +388,10 @@ namespace ACT.TTSYukkuri
                     watchTarget = Settings.Default.StatusAlertSettings.AlertTargetsTP;
                     break;
 
+                case "GP":
+                    watchTarget = Settings.Default.StatusAlertSettings.AlertTargetsGP;
+                    break;
+
                 default:
                     return r;
             }
@@ -366,7 +422,7 @@ namespace ACT.TTSYukkuri
             /// <summary>
             /// ID
             /// </summary>
-            public int ID { get; set; }
+            public uint ID { get; set; }
 
             /// <summary>
             /// 名前
@@ -387,6 +443,11 @@ namespace ACT.TTSYukkuri
             /// TP率
             /// </summary>
             public decimal TPRate { get; set; }
+
+            /// <summary>
+            /// GP率
+            /// </summary>
+            public decimal GPRate { get; set; }
         }
     }
 }

@@ -23,6 +23,31 @@ namespace FFXIV.Framework.WPF.Controls
             this.Render();
         }
 
+        #region IsSign 依存関係プロパティ
+
+        /// <summary>
+        /// IsSign 依存関係プロパティ
+        /// </summary>
+        public static readonly DependencyProperty IsSignProperty
+            = DependencyProperty.Register(
+            nameof(IsSign),
+            typeof(bool),
+            typeof(DenomiNumericTextBlock),
+            new FrameworkPropertyMetadata(
+                false,
+                (s, e) => (s as DenomiNumericTextBlock).Render()));
+
+        /// <summary>
+        /// IsSign
+        /// </summary>
+        public bool IsSign
+        {
+            get => (bool)this.GetValue(IsSignProperty);
+            set => this.SetValue(IsSignProperty, value);
+        }
+
+        #endregion IsSign 依存関係プロパティ
+
         #region IsDenomi 依存関係プロパティ
 
         /// <summary>
@@ -47,6 +72,31 @@ namespace FFXIV.Framework.WPF.Controls
         }
 
         #endregion IsDenomi 依存関係プロパティ
+
+        #region IsDisableBottom 依存関係プロパティ
+
+        /// <summary>
+        /// IsDisableBottom 依存関係プロパティ
+        /// </summary>
+        public static readonly DependencyProperty IsDisableBottomProperty
+            = DependencyProperty.Register(
+            nameof(IsDisableBottom),
+            typeof(bool),
+            typeof(DenomiNumericTextBlock),
+            new FrameworkPropertyMetadata(
+                false,
+                (s, e) => (s as DenomiNumericTextBlock).Render()));
+
+        /// <summary>
+        /// IsDisableBottom
+        /// </summary>
+        public bool IsDisableBottom
+        {
+            get => (bool)this.GetValue(IsDisableBottomProperty);
+            set => this.SetValue(IsDisableBottomProperty, value);
+        }
+
+        #endregion IsDisableBottom 依存関係プロパティ
 
         #region Value 依存関係プロパティ
 
@@ -240,9 +290,11 @@ namespace FFXIV.Framework.WPF.Controls
             label.BlurOpacity = this.BlurOpacity;
             label.TextDecorations = this.TextDecorations;
 
-            var text = DivideValueText(this.Value);
+            var text = DivideValueText(this.Value, this.IsDisableBottom);
 
-            this.UpperPartLabel.Text = text.UpperPart;
+            this.UpperPartLabel.Text = !this.IsSign ?
+                text.UpperPart :
+                this.Value > 0 ? "+" + text.UpperPart : text.UpperPart;
             this.BottomPartLabel.Text = text.BottomPart;
 
             this.UpperPartLabel.Visibility = string.IsNullOrEmpty(this.UpperPartLabel.Text) ?
@@ -255,20 +307,31 @@ namespace FFXIV.Framework.WPF.Controls
         }
 
         public static (string UpperPart, string BottomPart) DivideValueText(
-            double value)
+            double value,
+            bool isDisableBottom = false)
         {
             var result = default((string UpperPart, string BottomPart));
 
             var hp = (long)value;
-            if (hp < 10000)
+            var hpAbsolute = (long)Math.Abs(hp);
+
+            if (hpAbsolute < 1000)
             {
-                result.UpperPart = hp.ToString("N0");
-                result.BottomPart = string.Empty;
+                if (!isDisableBottom)
+                {
+                    result.UpperPart = hp.ToString("N0");
+                    result.BottomPart = string.Empty;
+                }
+                else
+                {
+                    result.UpperPart = hp.ToString("<1;-<1;0");
+                    result.BottomPart = string.Empty;
+                }
             }
             else
             {
                 result.UpperPart = (hp / 1000).ToString("N0");
-                result.BottomPart = " ," + (hp % 1000).ToString("000");
+                result.BottomPart = " ," + (hpAbsolute % 1000).ToString("000");
             }
 
             return result;
