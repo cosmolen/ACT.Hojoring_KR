@@ -1,4 +1,0 @@
-# 自動更新の対象外とするファイルのリストです
-_sample.txt
-update_hojoring_ignores.txt
-start_ffxiv_tools.ps1

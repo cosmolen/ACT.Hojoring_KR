@@ -1,170 +1,122 @@
 # ACT.Hojoring
-[![Downloads](https://img.shields.io/github/downloads/anoyetta/ACT.Hojoring/total.svg)](https://github.com/anoyetta/ACT.Hojoring/releases)
+[![Downloads](https://img.shields.io/github/downloads/cosmolen/ACT.Hojoring_KR/total.svg)](https://github.com/cosmolen/ACT.Hojoring_KR/releases)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://github.com/anoyetta/ACT.Hojoring/blob/master/LICENSE)
 
-「補助輪」  
-Advanced Combat Tracker の FFXIV向けプラグインの詰合せです。  
-スペスペ・ウルスカ・TTSゆっくりをまとめて「補助輪」 という名称でリリースしています。  
+"호조링"
+Advanced Combat Tracker에서 사용할 수 있는 FFXIV용 플러그인 패키지입니다.
+스페스페/울트라스카우터/TTS윳쿠리를 패키징하여 "호조링"이라는 명칭으로 릴리즈합니다.
+
+### ACT.Hojoring 한국 서버 지원 버전
+ACT.Hojoring 최신 버전을 한국 서버에서도 사용할 수 있도록 수정하여 릴리즈합니다.
+UI를 한국어로 번역한 것 외에도 내부 동작을 한국 서버에 맞도록 수정하였습니다.
 
 #### [SpecialSpellTimer](https://github.com/anoyetta/ACT.Hojoring/wiki/SpecialSpellTimer)
-通称「スペスペ」  
-アビリティなどのリキャストを表示するためのプラグインです。基本的にログに対するトリガとして動作します。
+통칭 "스페스페"
+스킬의 재사용 대기시간을 표시하기 위한 플러그인 입니다. 기본적으로 로그에 대한 트리거로서 작동합니다.
 
 #### [UltraScouter](https://github.com/anoyetta/ACT.Hojoring/wiki/UltraScouter)
-通称「ウルスカ」  
-ターゲットのHPや距離、周囲のモブの検知などを行うプラグインです。リアルタイムにメモリ情報を読み取って表示などを行います。
+통칭 "스카우터"
+대상의 HP나 거리, 주의의 몹을 감지하는 등의 기능을 가진 플러그인입니다. 실시간 메모리 정보를 읽어들여 표시합니다.
 
 #### [TTSYukkuri](https://github.com/anoyetta/ACT.Hojoring/wiki/Yukkuri)
-通称「ゆっくり」  
-ACT本体のTTS機能をゆっくり実況などで有名な AquesTalk&trade; などに置き換えます。ほぼすべてのTTSエンジンを網羅しています。またTTSをDISCORD BOTを経由してDISCORDのボイスチャットとして通知することもできます。
+통칭 "윳쿠리"
+ACT 자체 TTS기능을 윳쿠리 실황으로 유명한 AquesTalk&trade; 등으로 변경합니다. 거의 모든 TTS엔진을 지원합니다. 또한 TTS를 디스코드 BOT을 경유하여 디스코드의 음성 채팅으로 송출하는 기능도 있습니다.
 
-## 最新リリース
-### **[DOWNLOAD Lastest-Release](https://github.com/anoyetta/ACT.Hojoring/releases/latest)**
-[pre-release](https://github.com/anoyetta/ACT.Hojoring/releases)
+## 최신 릴리즈
+### **[DOWNLOAD Lastest-Release](https://github.com/cosmolen/ACT.Hojoring_KR/releases/latest)**
+[pre-release](https://github.com/cosmolen/ACT.Hojoring_KR/releases)
 
-## インストール
-### マニュアルインストール
-1. 各種ランタイムをインストールする  
-**[Visual Studio 2017 用 Microsoft Visual C++ 再頒布可能パッケージ](https://go.microsoft.com/fwlink/?LinkId=746572)**  
+## 설치
+### 수동 설치
+1. 런타임 설치하기
+**[Visual Studio 2017용 Microsoft Visual C++ 재배포 가능 패키지](https://go.microsoft.com/fwlink/?LinkId=746572)**  
 **[.NET Framework 4.7.2](https://www.microsoft.com/net/download/thank-you/net472)**  
-をインストールする。
+를 설치합니다.
 
-2. 最新版を取得する  
-[最新リリース](https://github.com/anoyetta/ACT.Hojoring/releases/latest) からダウンロードします。
+2. 최신 버전 다운로드하기
+[최신 릴리즈](https://github.com/cosmolen/ACT.Hojoring_KR/releases/latest)에서 다운로드 합니다.
 
-3. 解凍する  
-ダウンロードしたプラグイン一式を解凍し任意のフォルダに配置します。
+3. 압축 풀기
+다운로드한 플러그인을 원하는 폴더에 압축 해제합니다.
 
-4. ACTに追加する  
-ACTにプラグインとして追加します。3つのプラグインそれぞれを登録します。  
-必要なものだけ登録してください。もちろんすべて登録しても問題ありません。  
+4. ACT에 추가하기
+ACT에 플러그인으로 추가합니다. 각 플러그인은 따로 등록해야 합니다.
+필요한 플러그인만 등록해주세요. 물론 모두 등록해도 괜찮습니다. 
     * ACT.SpecialSpellTimer.dll
     * ACT.UltraScouter.dll
     * ACT.TTSYukkuri.dll
 
-詳細な手順は **[anoyetta の開発記録 - ACTおよび補助輪のインストール手順（完全版）](https://www.anoyetta.com/entry/2019/04/08/132603)** を読んでください。
+자세한 순서는 **[anoyetta の開発記録 - ACTおよび補助輪のインストール（完全版）](https://www.anoyetta.com/entry/hojoring-setup)**를 읽어주세요 (일본어).
 
-### FFXIV_MemoryReader
-補助輪はTamanegiMageさんが開発した [FFXIV_MemoryReader](https://github.com/TamanegiMage/FFXIV_MemoryReader) を利用しています。  
-FFXIV_MemoryReader は FFXIV_ACT_Plugin が取得していない情報を FFXIV から取得します。これによってスペル、ウルスカの方角関係の機能などを拡張しています。
+### 작동환경
+* [Windows 10](https://www.microsoft.com/software-download/windows10) 이상 (Windows 7/8/8.1에서는 동작하지 않습니다)
+* .NET Framework 4.7.1 이상
 
-### 動作環境
-* [Windows 10](https://www.microsoft.com/software-download/windows10) 以降（Windows 7/8/8.1 では原則的に動作しません）
-* .NET Framework 4.7.1 以降
+## 사용법
+**기본적인 사용법은 [Wiki](https://github.com/anoyetta/ACT.Hojoring/wiki)를 참고해주세요 (일본어).**
 
-## 使い方
-**基本的に [Wiki](https://github.com/anoyetta/ACT.Hojoring/wiki) を見てください。**
-
-#### おすすめ設定とか教えて
-下記の Google Drive 共有フォルダで各種リソースのサンプルを提供しています。  
-**[Google Drive > anoyetta > ACT](https://drive.google.com/drive/folders/1nPBuqd8z3jzk0RDOx6NqK6NYUoy08_k-?usp=sharing)**  
-**[ACTの共有リソースの使い方](https://drive.google.com/open?id=1dl4dMoBONNz-NRZLCqU7YbkmkEpLKAllN92U-SCwY3M)** **[必読]**  
-
-##### Hojoring の設定ファイルあれこれ
-1. 格納場所  
+##### Hojoring 설정 파일에 대해
+1. 저장 위치
 ```
 %APPDATA%\anoyetta\ACT
 ```  
-にすべて格納されています。よって、OSの再インストール等のときはこのディレクトリを丸ごとバックアップして再インストール後に配置しなおせば、再インストール前の設定を復元できます。
+에 모두 저장됩니다. 따라서 OS 재설치 시에는 이 폴더를 통째로 백업하여 재설치 후에 복원하면 재설치 전의 설정을 유지할 수 있습니다.
 
-2. 設定ファイル  
+2. 설정 파일
 ```
 ACT.SpecialSpellTimer.config
 ACT.TTSYukkuri.config
 ACT.UltraScouter.config
 ```
-それぞれ、スペスペ・ゆっくり・ウルスカの設定ファイルです。  
-スペスペではトリガ以外のオプション関係の設定が保存されています。他のプラグインではプラグインそのものの設定が保存されています。  
+각각 스페스페, 윳쿠리, 스카우터 설정 파일입니다.
 
-3. スペスペのトリガの設定ファイル  
+3. 스페스페 트리거 설정 파일
 ```
 ACT.SpecialSpellTimer.Panels.xml
 ACT.SpecialSpellTimer.Spells.xml
 ACT.SpecialSpellTimer.Telops.xml
 ACT.SpecialSpellTimer.Tags.xml
 ```  
-スペスペの各種トリガの設定ファイルです。それぞれ、スペルパネル・スペル・テロップ・タグの設定ファイルになります。
+스페스페 트리거 설정 파일입니다. 각각 스펠 패널, 스펠, 티커, 태그 설정 파일입니다.
 
-## アップデート
-Help タブからアップデートしてください。  
-
-![how_to_update](https://github.com/anoyetta/ACT.Hojoring/blob/master/images/how_to_update.png?raw=true)
-
-自分で独自に編集しているから上書きしたくないファイルがある場合は **update_hojoring.ps1** スクリプトを編集してください。
-```powershell
-# update_hojoring.ps1
-
-# 更新の除外リスト
-$updateExclude = @(
-    "_dummy.txt",
-    "_sample.txt"
-)
-```
-
-## ライセンス
+## 라이센스
 [3-Clause BSD License](LICENSE)  
 &copy; 2014-2018 anoyetta  
 
-ただし下記の行為を禁止します。
-* 配布されたバイナリに対してリバースエンジニアリング等を行い内部を解析する行為
-* 配布されたバイナリのすべてもしくは一部を本来の目的とは異なる目的に使用する行為
+단 다음과 같은 행위는 금지합니다.
+* 배포된 바이너리에 대해 리버스 엔지니어링을 하여 내부 해석하는 행위
+* 배포된 바이너리의 전체 또는 일부를 본래 목적과 다른 목적으로 사용하는 행위
 
-## お問合わせ
-### なんかエラー出た
-開発者に質問する場合は、下記の情報を添えてください。
-* ACT本体のログファイル  
-* 当プラグインのログファイル
-* （あれば）エラーダイアログのスクリーンショット
+## 문의
+### 오류가 발생했다면
+개발자에게 질문할 경우 아래 정보를 첨부해주세요.
+* ACT 본체 로그 파일
+* 해당 플러그인 로그 파일
+* (있다면) 오류 메시지 스크린샷
 
-##### [Help] → [サポート情報を保存する] から必要な情報一式を保存できます。
-![help](https://github.com/anoyetta/ACT.Hojoring/blob/master/images/help.png?raw=true)
+##### [Help] → [지원 정보 저장] 버튼을 누르면 필요한 정보를 저장할 수 있습니다.
+![help](https://github.com/cosmolen/ACT.Hojoring_KR/blob/master/images/help.png?raw=true)
 
-##### 起動できないなどUIから取得できない場合は下記のフォルダから収集してください。
+##### ACT나 플러그인 자체가 실행되지 않는 등 UI로 정보를 저장할 수 없을 경우 다음과 같은 폴더에서 수집할 수 있습니다.
 ```
 %APPDATA%\Advanced Combat Tracker\Advanced Combat Tracker.log
 %APPDATA%\anoyetta\ACT\logs\ACT.Hojoring.YYYY-MM-DD.log
 ```
 
-### スペルが動かない
-前述の情報に以下の情報も追加で必要になります。  
-* 引っ掛けたい対象のログ
-* 対象のスペルやテロップの設定
+### 스펠이 동작하지 않아요
+앞서 설명한 정보에 추가로 다음과 같은 정보가 필요합니다.
+* 등록하고 싶은 로그 (스킬 이름, 버프 이름 등)
+* 해당 스펠이나 티커 설정
 
-これらの情報がない場合は回答できません。
+### 문의 서식
+**[New Issue](https://github.com/anoyetta/ACT.Hojoring/issues/new/choose)**  
+에서 티켓을 등록해주세요. [issues](https://github.com/cosmolen/ACT.Hojoring_KR/issues)에서 기존 이슈, 현재 상황을 확인할 수 있습니다.  
+중복 질문은 자제 부탁드립니다. 
 
-### まったく分かっていない
-リモートでサポートすることも出来ます。  
-下記のいずれかのリモート機能を使用して [DISCORD](https://discord.gg/n6Mut3F) 経由でリモートサポートを依頼してください。  
-* [TeamViewer](https://www.teamviewer.com/ja/)
-* [Google リモートデスクトップ](https://support.google.com/chrome/answer/1649523?co=GENIE.Platform%3DDesktop&hl=ja)  
-* [クイックアシスト機能](https://support.microsoft.com/ja-jp/help/27919/windows-10-get-help-with-pc-problems)
-
-また、リモートサポートの依頼ではなくても説明が困難な場合はリモートによる設定を案内する場合があります。その場合は案内に従ってください。
-
-### 問合せフォーム
-**[New Issue](https://github.com/anoyetta/ACT.Hojoring/issues/new)**  
-からチケットを登録してください。[issues](https://github.com/anoyetta/ACT.Hojoring/issues) から既存の課題、現在の状況を確認出来ます。  
-重複する質問はご遠慮ください。
-
-### 連絡先
-discord:  [Hojoring Forum](https://discord.gg/n6Mut3F)  
-mail:     anoyetta(at)gmail.com  
-twitter:  [@anoyetta](https://twitter.com/anoyetta)  
-まで。  
-基本的に issues からお願いします。issues の課題から優先的に対応します。  
-どうしても直接連絡したい場合はなるべく discord を使用してください。 
-
-### どこに振り込んだらいいんだ？
-無償で提供しています。  
-どうしても寄付したい方は anoyetta(at)gmail.com 宛てに  
-**[Amazonギフト券（Eメールタイプ）](https://www.amazon.co.jp/dp/BT00DHI8G4)**  
-を送ってください。  
-大好きな コカ・コーラ ゼロ を買って開発時に役立てます。
-
-### DONATION
+### DONATION (원본 개발자 anoyetta님)
 I can receive only  **[Amazon eGift Card](https://www.amazon.com/dp/B004LLIKVU)**   
 sendto: anoyetta(at)gmail.com
 
 ---
-記載されている会社名・製品名・システム名などは、各社の商標、または登録商標です。  
-Copyright &copy; 2010 - 2018 SQUARE ENIX CO., LTD. All Rights Reserved.
+기재된 회사명, 제품명, 시스템명 등은 각 회사의 상표 또는 등록상표입니다.
+Copyright &copy; 2010 - 2019 SQUARE ENIX CO., LTD. All Rights Reserved.
