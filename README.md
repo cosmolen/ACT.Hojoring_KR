@@ -2,24 +2,24 @@
 [![Downloads](https://img.shields.io/github/downloads/cosmolen/ACT.Hojoring_KR/total.svg)](https://github.com/cosmolen/ACT.Hojoring_KR/releases)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://github.com/anoyetta/ACT.Hojoring/blob/master/LICENSE)
 
-"호조링"
-Advanced Combat Tracker에서 사용할 수 있는 FFXIV용 플러그인 패키지입니다.
+"호조링"  
+Advanced Combat Tracker에서 사용할 수 있는 FFXIV용 플러그인 패키지입니다.  
 스페스페/울트라스카우터/TTS윳쿠리를 패키징하여 "호조링"이라는 명칭으로 릴리즈합니다.
 
 ### ACT.Hojoring 한국 서버 지원 버전
-ACT.Hojoring 최신 버전을 한국 서버에서도 사용할 수 있도록 수정하여 릴리즈합니다.
+ACT.Hojoring 최신 버전을 한국 서버에서도 사용할 수 있도록 수정하여 릴리즈합니다.  
 UI를 한국어로 번역한 것 외에도 내부 동작을 한국 서버에 맞도록 수정하였습니다.
 
 #### [SpecialSpellTimer](https://github.com/anoyetta/ACT.Hojoring/wiki/SpecialSpellTimer)
-통칭 "스페스페"
+통칭 "스페스페"  
 스킬의 재사용 대기시간을 표시하기 위한 플러그인 입니다. 기본적으로 로그에 대한 트리거로서 작동합니다.
 
 #### [UltraScouter](https://github.com/anoyetta/ACT.Hojoring/wiki/UltraScouter)
-통칭 "스카우터"
+통칭 "스카우터"  
 대상의 HP나 거리, 주의의 몹을 감지하는 등의 기능을 가진 플러그인입니다. 실시간 메모리 정보를 읽어들여 표시합니다.
 
 #### [TTSYukkuri](https://github.com/anoyetta/ACT.Hojoring/wiki/Yukkuri)
-통칭 "윳쿠리"
+통칭 "윳쿠리"  
 ACT 자체 TTS기능을 윳쿠리 실황으로 유명한 AquesTalk&trade; 등으로 변경합니다. 거의 모든 TTS엔진을 지원합니다. 또한 TTS를 디스코드 BOT을 경유하여 디스코드의 음성 채팅으로 송출하는 기능도 있습니다.
 
 ## 최신 릴리즈
@@ -27,26 +27,30 @@ ACT 자체 TTS기능을 윳쿠리 실황으로 유명한 AquesTalk&trade; 등으
 [pre-release](https://github.com/cosmolen/ACT.Hojoring_KR/releases)
 
 ## 설치
+### 자동 설치
+해루@모그리님의 **HAERUBOT(해루봇)** 을 이용하면 플러그인 설치와 연결을 쉽게 할 수 있습니다.  
+자세한 내용은 [여기](http://www.inven.co.kr/board/ff14/4953/211)를 확인해주세요.
+
 ### 수동 설치
-1. 런타임 설치하기
+1. 런타임 설치하기  
 **[Visual Studio 2017용 Microsoft Visual C++ 재배포 가능 패키지](https://go.microsoft.com/fwlink/?LinkId=746572)**  
 **[.NET Framework 4.7.2](https://www.microsoft.com/net/download/thank-you/net472)**  
 를 설치합니다.
 
-2. 최신 버전 다운로드하기
+2. 최신 버전 다운로드하기  
 [최신 릴리즈](https://github.com/cosmolen/ACT.Hojoring_KR/releases/latest)에서 다운로드 합니다.
 
-3. 압축 풀기
+3. 압축 풀기  
 다운로드한 플러그인을 원하는 폴더에 압축 해제합니다.
 
-4. ACT에 추가하기
-ACT에 플러그인으로 추가합니다. 각 플러그인은 따로 등록해야 합니다.
+4. ACT에 추가하기  
+ACT에 플러그인으로 추가합니다. 각 플러그인은 따로 등록해야 합니다.  
 필요한 플러그인만 등록해주세요. 물론 모두 등록해도 괜찮습니다. 
     * ACT.SpecialSpellTimer.dll
     * ACT.UltraScouter.dll
     * ACT.TTSYukkuri.dll
 
-자세한 순서는 **[anoyetta の開発記録 - ACTおよび補助輪のインストール（完全版）](https://www.anoyetta.com/entry/hojoring-setup)**를 읽어주세요 (일본어).
+자세한 순서는 **[anoyetta の開発記録 - ACTおよび補助輪のインストール（完全版）](https://www.anoyetta.com/entry/hojoring-setup)** 를 읽어주세요 (일본어).
 
 ### 작동환경
 * [Windows 10](https://www.microsoft.com/software-download/windows10) 이상 (Windows 7/8/8.1에서는 동작하지 않습니다)
@@ -109,7 +113,7 @@ ACT.SpecialSpellTimer.Tags.xml
 * 해당 스펠이나 티커 설정
 
 ### 문의 서식
-**[New Issue](https://github.com/anoyetta/ACT.Hojoring/issues/new/choose)**  
+**[New Issue](https://github.com/cosmolen/ACT.Hojoring_KR/issues/new/choose)**  
 에서 티켓을 등록해주세요. [issues](https://github.com/cosmolen/ACT.Hojoring_KR/issues)에서 기존 이슈, 현재 상황을 확인할 수 있습니다.  
 중복 질문은 자제 부탁드립니다. 
 
@@ -118,5 +122,5 @@ I can receive only  **[Amazon eGift Card](https://www.amazon.com/dp/B004LLIKVU)*
 sendto: anoyetta(at)gmail.com
 
 ---
-기재된 회사명, 제품명, 시스템명 등은 각 회사의 상표 또는 등록상표입니다.
+기재된 회사명, 제품명, 시스템명 등은 각 회사의 상표 또는 등록상표입니다.  
 Copyright &copy; 2010 - 2019 SQUARE ENIX CO., LTD. All Rights Reserved.
