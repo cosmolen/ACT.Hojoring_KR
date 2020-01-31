@@ -85,7 +85,7 @@ ACT.SpecialSpellTimer.Tags.xml
 
 ## 라이센스
 [3-Clause BSD License](LICENSE)  
-&copy; 2014-2018 anoyetta  
+&copy; 2014-2020 anoyetta  
 
 단 다음과 같은 행위는 금지합니다.
 * 배포된 바이너리에 대해 리버스 엔지니어링을 하여 내부 해석하는 행위
@@ -123,4 +123,4 @@ sendto: anoyetta(at)gmail.com
 
 ---
 기재된 회사명, 제품명, 시스템명 등은 각 회사의 상표 또는 등록상표입니다.  
-Copyright &copy; 2010 - 2019 SQUARE ENIX CO., LTD. All Rights Reserved.
+Copyright &copy; 2010 - 2020 SQUARE ENIX CO., LTD. All Rights Reserved.
