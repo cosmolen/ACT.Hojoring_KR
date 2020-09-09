@@ -34,7 +34,7 @@ ACT 자체 TTS기능을 윳쿠리 실황으로 유명한 AquesTalk&trade; 등으
 ### 수동 설치
 1. 런타임 설치하기  
 **[Visual Studio 2017용 Microsoft Visual C++ 재배포 가능 패키지](https://go.microsoft.com/fwlink/?LinkId=746572)**  
-**[.NET Framework 4.7.2](https://www.microsoft.com/net/download/thank-you/net472)**  
+**[.NET Framework 4.8](https://dotnet.microsoft.com/download/dotnet-framework/thank-you/net48-web-installer)**  
 를 설치합니다.
 
 2. 최신 버전 다운로드하기  
